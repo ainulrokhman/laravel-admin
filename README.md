@@ -15,6 +15,8 @@ A professional, feature-rich admin template and starter kit built on **Laravel 1
 *   **Robust RBAC System**: Full role and permission management using **Spatie Laravel Permission**.
 *   **High Performance Data Handling**: Server-side pagination, search, and filtering via **Yajra DataTables** loaded asynchronously using AJAX.
 *   **Secure Authentication**: Streamlined user login and logout flows out-of-the-box.
+*   **User Profile & Avatar Settings**: Independent profile management page allowing users to update their personal details, upload a profile picture, and change passwords securely.
+*   **Audit Activity Logging**: Comprehensive activity tracking utilizing **Spatie Laravel Activitylog** to monitor all creations, edits, and deletions of key models, complete with detailed side-by-side modal comparisons of changed properties.
 *   **Developer Friendly Scripting**: Custom automated project installation commands and concurrency-enabled multi-service local development runner.
 *   **Clean & Secure Codebase**: Strict security checks preventing self-deletion of logged-in accounts, safeguarding seed accounts, and validating all requests.
 
@@ -28,6 +30,7 @@ A professional, feature-rich admin template and starter kit built on **Laravel 1
 *   **Asset Bundler**: Vite
 *   **RBAC Package**: `spatie/laravel-permission`
 *   **DataTables Package**: `yajra/laravel-datatables-oracle`
+*   **Activity Logging Package**: `spatie/laravel-activitylog`
 
 ---
 
@@ -157,6 +160,11 @@ All main data lists should load dynamically and asynchronously using Ajax Yajra 
     ```
 *   **Super Admin Protection**: The email or record of `superadmin@example.com` must be protected from deletion or modifications.
 *   **Hashing**: Always hash user passwords during creation or updates using `Hash::make()`.
+ 
+ ### 5. Audit Logging & Custom Models
+ *   For core database models (e.g. `User`, `Role`, `Permission`) requiring change-tracking, implement the `Spatie\Activitylog\Traits\LogsActivity` trait and define the `getActivitylogOptions()` method.
+ *   To track third-party vendor models like Spatie's `Role` and `Permission`, extend Spatie's base models under `App\Models\Role` and `App\Models\Permission` and point to them in `config/permission.php`.
+ *   Access to Activity Logs is restricted using the `activity-log-list` permission.
 
 ---
 

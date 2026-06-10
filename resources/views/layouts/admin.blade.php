@@ -214,31 +214,51 @@
 
                     <!-- User Menu Dropdown -->
                     <li class="nav-item dropdown user-menu">
+                        @php
+                            $currentUser = auth()->user();
+                            $menuInitials = collect(explode(' ', $currentUser->name ?? 'U'))
+                                ->map(fn($segment) => mb_substr($segment, 0, 1))
+                                ->take(2)
+                                ->join('');
+                        @endphp
                         <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
-                            </div>
-                            <span class="d-none d-md-inline fw-semibold text-body">{{ auth()->user()->name ?? 'User' }}</span>
+                            @if($currentUser && $currentUser->avatar)
+                                <img src="{{ asset('storage/' . $currentUser->avatar) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar">
+                            @else
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                    {{ strtoupper($menuInitials) }}
+                                </div>
+                            @endif
+                            <span class="d-none d-md-inline fw-semibold text-body">{{ $currentUser->name ?? 'User' }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow border-0">
                             <!-- User image -->
                             <li class="user-header bg-primary text-white text-center py-4 rounded-top">
-                                <div class="bg-white text-primary rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-2 shadow" style="width: 64px; height: 64px; font-size: 1.5rem;">
-                                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
-                                </div>
+                                @if($currentUser && $currentUser->avatar)
+                                    <img src="{{ asset('storage/' . $currentUser->avatar) }}" class="rounded-circle shadow mb-2 border border-white border-2" style="width: 64px; height: 64px; object-fit: cover;" alt="Avatar">
+                                @else
+                                    <div class="bg-white text-primary rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-2 shadow" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                                        {{ strtoupper($menuInitials) }}
+                                    </div>
+                                @endif
                                 <p class="mb-0 fw-bold">
-                                    {{ auth()->user()->name ?? 'User' }}
+                                    {{ $currentUser->name ?? 'User' }}
                                 </p>
-                                <small>Role: {{ auth()->user()->roles->first()?->name ?? 'None' }}</small>
+                                <small>Role: {{ $currentUser->roles->first()?->name ?? 'None' }}</small>
                             </li>
                             <!-- Menu Body -->
                             <li class="user-body p-3">
-                                <div class="row text-center justify-content-center">
-                                    <div class="col-6">
-                                        <a href="/admin" class="btn btn-light btn-sm w-100 border">Home</a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="{{ route('logout') }}" class="btn btn-danger btn-sm w-100">Logout</a>
+                                <div class="d-flex flex-column gap-2 text-center">
+                                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-primary btn-sm w-100">
+                                        <i class="bi bi-person-gear me-1"></i> My Profile
+                                    </a>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <a href="/admin" class="btn btn-light btn-sm w-100 border">Home</a>
+                                        </div>
+                                        <div class="col-6">
+                                            <a href="{{ route('logout') }}" class="btn btn-danger btn-sm w-100">Logout</a>
+                                        </div>
                                     </div>
                                 </div>
                             </li>
@@ -305,6 +325,15 @@
                         </li>
                         @endcan
  
+                        @can('activity-log-list')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->is('admin/activity-logs*') ? 'active bg-primary text-white' : 'text-body' }}">
+                                <i class="nav-icon bi bi-journal-text me-2"></i>
+                                <p>Activity Logs</p>
+                            </a>
+                        </li>
+                        @endcan
+
                         @can('manage-settings')
                         <li class="nav-item">
                             <a href="#" class="nav-link text-body">

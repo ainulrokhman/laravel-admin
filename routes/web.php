@@ -5,6 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ActivityLogController;
 
 // Welcome Page
 Route::get('/', function () {
@@ -22,14 +25,14 @@ Route::any('/logout', [AuthController::class, 'logout'])->name('logout')->middle
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard Route
-    Route::get('/', function () {
-        // We will load counts dynamically
-        $usersCount = \App\Models\User::count();
-        $rolesCount = \Spatie\Permission\Models\Role::count();
-        $permissionsCount = \Spatie\Permission\Models\Permission::count();
-        
-        return view('admin.dashboard', compact('usersCount', 'rolesCount', 'permissionsCount'));
-    })->name('dashboard')->middleware('permission:view-dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view-dashboard');
+
+    // Profile Routes
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Activity Log Route
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index')->middleware('permission:activity-log-list');
 
     // RBAC CRUD Resource Routes
     Route::resource('users', UserController::class)->middleware('permission:user-list');

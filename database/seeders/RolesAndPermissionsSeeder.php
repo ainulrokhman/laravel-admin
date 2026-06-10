@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use App\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -39,6 +39,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'permission-delete',
             
             'manage-settings',
+            'activity-log-list',
         ];
 
         foreach ($permissions as $permission) {
@@ -67,6 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'role-delete',
             
             'permission-list',
+            'activity-log-list',
         ]);
 
         // SuperAdmin Role

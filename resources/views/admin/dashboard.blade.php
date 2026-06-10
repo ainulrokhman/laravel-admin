@@ -174,64 +174,46 @@
             <div class="card-body px-4 pb-4">
                 <div class="d-flex flex-column gap-3">
                     
+                    @forelse($recentUsers as $user)
+                    @php
+                        $initials = collect(explode(' ', $user->name))
+                            ->map(fn($segment) => mb_substr($segment, 0, 1))
+                            ->take(2)
+                            ->join('');
+                        $colors = ['primary', 'success', 'info', 'warning', 'danger', 'secondary'];
+                        // Consistent color selection based on ID
+                        $color = $colors[$user->id % count($colors)];
+                    @endphp
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                JD
-                            </div>
+                            @if(isset($user->avatar) && $user->avatar)
+                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
+                            @else
+                                <div class="bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                    {{ strtoupper($initials) }}
+                                </div>
+                            @endif
                             <div class="ms-3">
-                                <h6 class="mb-0 fw-bold text-body">John Doe</h6>
-                                <small class="text-muted">john@example.com</small>
+                                <h6 class="mb-0 fw-bold text-body">{{ $user->name }}</h6>
+                                <small class="text-muted">{{ $user->email }}</small>
                             </div>
                         </div>
-                        <span class="badge bg-light text-secondary border">2 hrs ago</span>
+                        <span class="badge bg-light text-secondary border">{{ $user->created_at->diffForHumans() }}</span>
                     </div>
-
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                AS
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0 fw-bold text-body">Alice Smith</h6>
-                                <small class="text-muted">alice.s@example.com</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-light text-secondary border">5 hrs ago</span>
+                    @empty
+                    <div class="text-center py-3">
+                        <small class="text-muted">No recent members</small>
                     </div>
-
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                MB
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0 fw-bold text-body">Michael Brown</h6>
-                                <small class="text-muted">mbrown@example.com</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-light text-secondary border">Yesterday</span>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                WG
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0 fw-bold text-body">Windy Green</h6>
-                                <small class="text-muted">windy@example.com</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-light text-secondary border">2 days ago</span>
-                    </div>
+                    @endforelse
 
                 </div>
+                @can('user-list')
                 <div class="text-center mt-4">
-                    <a href="#" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium" style="border-radius: 8px;">
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium" style="border-radius: 8px;">
                         View All Users
                     </a>
                 </div>
+                @endcan
             </div>
         </div>
     </div>
