@@ -58,7 +58,7 @@ class RoleService implements RoleServiceInterface
     public function deleteRole(Role $role): bool
     {
         // System roles cannot be deleted
-        if (in_array($role->name, ['SuperAdmin', 'Admin', 'User'])) {
+        if ($this->isSystemRole($role)) {
             throw new \LogicException('Cannot delete system role "' . $role->name . '".');
         }
 
@@ -86,5 +86,14 @@ class RoleService implements RoleServiceInterface
             $grouped[$category][] = $permission;
         }
         return $grouped;
+    }
+
+    /**
+     * Check if a role is a protected system role.
+     */
+    public function isSystemRole(string|Role $role): bool
+    {
+        $roleName = $role instanceof Role ? $role->name : $role;
+        return in_array($roleName, ['SuperAdmin', 'Admin', 'User']);
     }
 }

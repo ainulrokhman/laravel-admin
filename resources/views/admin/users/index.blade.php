@@ -58,7 +58,6 @@
             <table class="table table-hover align-middle mb-0" id="users-table" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 80px;" class="text-secondary fw-semibold">ID</th>
                         <th class="text-secondary fw-semibold">User Details</th>
                         <th class="text-secondary fw-semibold">Assigned Roles</th>
                         <th class="text-secondary fw-semibold">Joined Date</th>
@@ -84,7 +83,6 @@
                 type: 'GET'
             },
             columns: [
-                { data: 'id', name: 'id', class: 'text-muted fw-bold' },
                 { data: 'user_details', name: 'user_details' },
                 { data: 'assigned_roles', name: 'assigned_roles', orderable: false },
                 { data: 'joined_date', name: 'joined_date' },

@@ -40,4 +40,12 @@ interface RoleServiceInterface
      * @return array
      */
     public function groupPermissions(Collection $permissions): array;
+
+    /**
+     * Check if a role is a protected system role.
+     *
+     * @param string|Role $role
+     * @return bool
+     */
+    public function isSystemRole(string|Role $role): bool;
 }

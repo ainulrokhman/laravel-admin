@@ -22,7 +22,6 @@ Use this guide/procedure when implementing server-side Yajra DataTables processi
          serverSide: true,
          ajax: "{{ route('resource.index') }}",
          columns: [
-             { data: 'id', name: 'id' },
              { data: 'name', name: 'name' },
              { data: 'actions', name: 'actions', orderable: false, searchable: false }
          ]
@@ -31,14 +30,14 @@ Use this guide/procedure when implementing server-side Yajra DataTables processi
 
 3. **Controller Setup**:
    - Detect if the request is an AJAX request using `$request->ajax()`.
-   - Construct the query, eager loading necessary relationships (using `with`) to avoid N+1 query performance issues.
+   - Construct the query, selecting only the necessary columns (always select the primary key `id` as it is required under the hood to build URLs and relations, but omit it from the UI columns). Use eager loading (`with`) to avoid N+1 query performance issues.
    - Wrap the query in `datatables()->of($query)`.
    - Add custom columns (such as buttons) with `addColumn` and list raw HTML columns using `rawColumns`.
    - Finalize using `->make(true)` to return the JSON response.
    - Example:
      ```php
      if ($request->ajax()) {
-         $query = ModelName::with('relationship');
+         $query = ModelName::select(['id', 'name', 'relationship_id'])->with('relationship');
          return datatables()->of($query)
              ->addColumn('actions', function ($row) {
                  return view('resource.partials.actions', compact('row'))->render();

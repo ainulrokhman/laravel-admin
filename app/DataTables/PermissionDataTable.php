@@ -4,16 +4,16 @@ namespace App\DataTables;
 
 use Spatie\Permission\Models\Permission;
 use Yajra\DataTables\Facades\DataTables;
+use App\Contracts\PermissionServiceInterface;
 
 class PermissionDataTable
 {
-    protected array $protectedPermissions = [
-        'view-dashboard',
-        'user-list', 'user-create', 'user-edit', 'user-delete',
-        'role-list', 'role-create', 'role-edit', 'role-delete',
-        'permission-list', 'permission-create', 'permission-edit', 'permission-delete',
-        'manage-settings'
-    ];
+    protected PermissionServiceInterface $permissionService;
+
+    public function __construct(PermissionServiceInterface $permissionService)
+    {
+        $this->permissionService = $permissionService;
+    }
 
     /**
      * Build the DataTable response.
@@ -22,7 +22,7 @@ class PermissionDataTable
      */
     public function make()
     {
-        $permissions = Permission::with('roles');
+        $permissions = Permission::select(['id', 'name', 'guard_name'])->with('roles');
 
         return DataTables::of($permissions)
             ->addColumn('permission_name', function ($permission) {
@@ -48,7 +48,7 @@ class PermissionDataTable
                 return $html;
             })
             ->addColumn('actions', function ($permission) {
-                $isProtected = in_array($permission->name, $this->protectedPermissions);
+                $isProtected = $this->permissionService->isPermissionProtected($permission);
                 $html = '<div class="d-flex justify-content-end gap-2">';
                 if ($isProtected) {
                     $html .= '<span class="badge bg-light text-secondary border d-flex align-items-center py-2 px-3 rounded-2 text-xs"><i class="bi bi-lock-fill text-warning me-1"></i> Core</span>';

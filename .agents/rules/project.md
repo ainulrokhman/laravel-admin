@@ -28,3 +28,9 @@ Always adhere to these architectural, security, and RBAC rules:
 - Always hash passwords with `Hash::make()`.
 - Use CSRF `@csrf` and validate requests.
 
+## 4. Code Quality & Principles
+- **SOLID Principles**: Write modular, extensible code adhering to Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion.
+- **Clean Code**: Use self-documenting names, keep methods/classes focused, avoid duplication (DRY), and minimize unnecessary complexity.
+- **Laravel & PHP Best Practices**: Leverage Laravel features (e.g., Form Requests for validation, Eloquent relationships, Dependency Injection), adhere to PHP/PSR coding standards, and write secure, readable, and highly maintainable code.
+
+

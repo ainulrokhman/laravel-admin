@@ -4,9 +4,16 @@ namespace App\DataTables;
 
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
+use App\Contracts\RoleServiceInterface;
 
 class RoleDataTable
 {
+    protected RoleServiceInterface $roleService;
+
+    public function __construct(RoleServiceInterface $roleService)
+    {
+        $this->roleService = $roleService;
+    }
     /**
      * Build the DataTable response.
      *
@@ -14,7 +21,7 @@ class RoleDataTable
      */
     public function make()
     {
-        $roles = Role::withCount(['users', 'permissions'])->with('permissions');
+        $roles = Role::select(['id', 'name', 'guard_name'])->withCount(['users', 'permissions'])->with('permissions');
 
         return DataTables::of($roles)
             ->addColumn('role_name', function ($role) {
@@ -64,7 +71,7 @@ class RoleDataTable
                         $html .= '<a href="' . route('admin.roles.edit', $role->id) . '" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Role"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
                     }
                     if (auth()->user()->can('role-delete')) {
-                        if (in_array($role->name, ['Admin', 'User'])) {
+                        if ($this->roleService->isSystemRole($role)) {
                             $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="Cannot delete system role"><i class="bi bi-trash-fill text-muted"></i></button>';
                         } else {
                             $html .= '<form action="' . route('admin.roles.destroy', $role->id) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this role? Any assigned users will lose these permissions.\')">';

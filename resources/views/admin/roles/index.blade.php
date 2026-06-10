@@ -58,7 +58,6 @@
             <table class="table table-hover align-middle mb-0" id="roles-table" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 80px;" class="text-secondary fw-semibold">ID</th>
                         <th class="text-secondary fw-semibold">Role Name</th>
                         <th class="text-secondary fw-semibold">Permissions Count</th>
                         <th class="text-secondary fw-semibold text-center">Active Users</th>
@@ -85,7 +84,6 @@
                 type: 'GET'
             },
             columns: [
-                { data: 'id', name: 'id', class: 'text-muted fw-bold' },
                 { data: 'role_name', name: 'name' },
                 { data: 'permissions_count', name: 'permissions_count', searchable: false },
                 { data: 'users_count', name: 'users_count', searchable: false, class: 'text-center' },

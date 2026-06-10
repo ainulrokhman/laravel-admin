@@ -14,7 +14,7 @@ class UserDataTable
      */
     public function make()
     {
-        $query = User::with('roles')->select('users.*');
+        $query = User::with('roles')->select(['id', 'name', 'email', 'created_at']);
 
         return DataTables::of($query)
             ->addColumn('user_details', function ($user) {

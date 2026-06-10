@@ -55,7 +55,6 @@
                     <table class="table table-hover align-middle mb-0" id="permissions-table" style="width:100%">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 80px;" class="text-secondary fw-semibold">ID</th>
                                 <th class="text-secondary fw-semibold">Permission Name</th>
                                 <th class="text-secondary fw-semibold">Roles Using This</th>
                                 <th style="width: 140px;" class="text-secondary fw-semibold text-end">Actions</th>
@@ -127,7 +126,6 @@
                 type: 'GET'
             },
             columns: [
-                { data: 'id', name: 'id', class: 'text-muted fw-bold' },
                 { data: 'permission_name', name: 'name' },
                 { data: 'roles_using_this', name: 'roles_using_this', orderable: false, searchable: false },
                 { data: 'actions', name: 'actions', orderable: false, searchable: false, class: 'text-end' }
