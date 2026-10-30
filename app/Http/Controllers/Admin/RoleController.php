@@ -12,9 +12,12 @@ use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\DataTables\RoleDataTable;
 use App\Support\SystemAccess;
+use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
 
 class RoleController extends Controller
 {
+    use HandlesServiceExceptions;
+
     protected RoleServiceInterface $roleService;
 
     /**
@@ -93,14 +96,8 @@ class RoleController extends Controller
     {
         Gate::authorize('role-edit');
 
-        try {
-            $this->roleService->updateRole($role, $request->validated());
-        } catch (\LogicException $e) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', $e->getMessage());
-        } catch (\InvalidArgumentException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->roleService->updateRole($role, $request->validated()), 'admin.roles.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.roles.index')
@@ -114,11 +111,8 @@ class RoleController extends Controller
     {
         Gate::authorize('role-delete');
 
-        try {
-            $this->roleService->deleteRole($role);
-        } catch (\LogicException $e) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->roleService->deleteRole($role), 'admin.roles.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.roles.index')

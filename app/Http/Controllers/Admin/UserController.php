@@ -11,9 +11,12 @@ use App\Contracts\UserServiceInterface;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\DataTables\UserDataTable;
+use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
 
 class UserController extends Controller
 {
+    use HandlesServiceExceptions;
+
     protected UserServiceInterface $userService;
 
     /**
@@ -85,11 +88,8 @@ class UserController extends Controller
     {
         Gate::authorize('user-edit');
 
-        try {
-            $this->userService->updateUser($user, $request->validated());
-        } catch (\InvalidArgumentException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->userService->updateUser($user, $request->validated()), 'admin.users.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.users.index')
@@ -103,11 +103,8 @@ class UserController extends Controller
     {
         Gate::authorize('user-delete');
 
-        try {
-            $this->userService->deleteUser($user);
-        } catch (\LogicException $e) {
-            return redirect()->route('admin.users.index')
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->userService->deleteUser($user), 'admin.users.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.users.index')

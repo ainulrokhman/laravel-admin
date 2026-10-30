@@ -10,9 +10,12 @@ use App\Contracts\PermissionServiceInterface;
 use App\Http\Requests\Permission\StorePermissionRequest;
 use App\Http\Requests\Permission\UpdatePermissionRequest;
 use App\DataTables\PermissionDataTable;
+use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
 
 class PermissionController extends Controller
 {
+    use HandlesServiceExceptions;
+
     protected PermissionServiceInterface $permissionService;
 
     /**
@@ -73,11 +76,8 @@ class PermissionController extends Controller
     {
         Gate::authorize('permission-edit');
 
-        try {
-            $this->permissionService->updatePermission($permission, $request->validated());
-        } catch (\LogicException $e) {
-            return redirect()->route('admin.permissions.index')
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->permissionService->updatePermission($permission, $request->validated()), 'admin.permissions.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.permissions.index')
@@ -91,11 +91,8 @@ class PermissionController extends Controller
     {
         Gate::authorize('permission-delete');
 
-        try {
-            $this->permissionService->deletePermission($permission);
-        } catch (\LogicException $e) {
-            return redirect()->route('admin.permissions.index')
-                ->with('error', $e->getMessage());
+        if ($errorRedirect = $this->runServiceAction(fn () => $this->permissionService->deletePermission($permission), 'admin.permissions.index')) {
+            return $errorRedirect;
         }
 
         return redirect()->route('admin.permissions.index')
