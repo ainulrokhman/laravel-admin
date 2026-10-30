@@ -54,12 +54,12 @@
                                    name="email" 
                                    value="{{ old('email', $user->email) }}" 
                                    placeholder="johndoe@example.com" 
-                                   {{ $user->email === 'superadmin@example.com' ? 'readonly' : '' }}
+                                   {{ $user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL ? 'readonly' : '' }}
                                    required>
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            @if($user->email === 'superadmin@example.com')
+                            @if($user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL)
                                 <div class="form-text text-warning small"><i class="bi bi-info-circle-fill me-1"></i> This is the main system Super Admin account. The email cannot be modified.</div>
                             @endif
                         </div>
@@ -111,13 +111,13 @@
                             @foreach($roles as $role)
                                 @php
                                     $isChecked = in_array($role->name, $userRoles);
-                                    $isDisabled = ($user->email === 'superadmin@example.com' && $role->name === 'SuperAdmin');
+                                    $isDisabled = ($user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL && $role->name === \App\Support\SystemAccess::SUPER_ADMIN_ROLE);
                                 @endphp
                                 <div class="card border p-3 rounded-3 bg-light bg-opacity-20">
                                     <div class="form-check d-flex align-items-center mb-0">
                                         <!-- Hidden input if disabled so it still posts in the form -->
                                         @if($isDisabled)
-                                            <input type="hidden" name="roles[]" value="SuperAdmin">
+                                            <input type="hidden" name="roles[]" value="{{ \App\Support\SystemAccess::SUPER_ADMIN_ROLE }}">
                                         @endif
                                         <input class="form-check-input" 
                                                type="checkbox" 
@@ -134,11 +134,11 @@
                                                 @endif
                                             </label>
                                             <span class="text-muted d-block small mt-0.5">
-                                                @if($role->name === 'SuperAdmin')
+                                                @if($role->name === \App\Support\SystemAccess::SUPER_ADMIN_ROLE)
                                                     Full unrestricted system admin access (bypasses all checks).
-                                                @elseif($role->name === 'Admin')
+                                                @elseif($role->name === \App\Support\SystemAccess::ADMIN_ROLE)
                                                     Management access to view dashboard, edit users, and manage roles.
-                                                @elseif($role->name === 'User')
+                                                @elseif($role->name === \App\Support\SystemAccess::USER_ROLE)
                                                     Standard user access, limited only to view dashboard details.
                                                 @else
                                                     Custom role with specific access privileges.

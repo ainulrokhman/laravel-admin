@@ -11,6 +11,7 @@ use App\Contracts\RoleServiceInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\DataTables\RoleDataTable;
+use App\Support\SystemAccess;
 
 class RoleController extends Controller
 {
@@ -73,7 +74,7 @@ class RoleController extends Controller
         Gate::authorize('role-edit');
 
         // Prevent editing SuperAdmin to avoid lockouts
-        if ($role->name === 'SuperAdmin') {
+        if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
             return redirect()->route('admin.roles.index')
                 ->with('error', 'The SuperAdmin role permissions are locked and cannot be modified.');
         }

@@ -117,12 +117,12 @@
                                            name="email" 
                                            value="{{ old('email', $user->email) }}" 
                                            placeholder="Enter email" 
-                                           {{ $user->email === 'superadmin@example.com' ? 'readonly' : '' }}
+                                           {{ $user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL ? 'readonly' : '' }}
                                            required>
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    @if($user->email === 'superadmin@example.com')
+                                    @if($user->email === \App\Support\SystemAccess::SUPER_ADMIN_EMAIL)
                                         <div class="form-text text-warning small">
                                             <i class="bi bi-info-circle-fill me-1"></i> This is the main seed Super Admin account. Email modifications are disabled.
                                         </div>

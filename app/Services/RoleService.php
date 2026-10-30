@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\RoleServiceInterface;
+use App\Support\SystemAccess;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Collection;
@@ -32,12 +33,12 @@ class RoleService implements RoleServiceInterface
      */
     public function updateRole(Role $role, array $data): Role
     {
-        if ($role->name === 'SuperAdmin') {
+        if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
             throw new \LogicException('The SuperAdmin role is protected and cannot be modified.');
         }
 
         // Don't allow changing the name of Admin and User system roles (to prevent breakage)
-        $isSystemRole = in_array($role->name, ['Admin', 'User']);
+        $isSystemRole = in_array($role->name, [SystemAccess::ADMIN_ROLE, SystemAccess::USER_ROLE]);
         if ($isSystemRole && ($data['name'] ?? '') !== $role->name) {
             throw new \InvalidArgumentException('Cannot change the name of the system role "' . $role->name . '".');
         }
@@ -94,6 +95,6 @@ class RoleService implements RoleServiceInterface
     public function isSystemRole(string|Role $role): bool
     {
         $roleName = $role instanceof Role ? $role->name : $role;
-        return in_array($roleName, ['SuperAdmin', 'Admin', 'User']);
+        return SystemAccess::isSystemRole($roleName);
     }
 }

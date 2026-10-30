@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
+use App\Support\SystemAccess;
 use Illuminate\Support\Facades\Hash;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -49,11 +50,11 @@ class RolesAndPermissionsSeeder extends Seeder
         // 2. Create Roles and Assign Existing Permissions
         
         // User Role
-        $userRole = Role::firstOrCreate(['name' => 'User']);
+        $userRole = Role::firstOrCreate(['name' => SystemAccess::USER_ROLE]);
         $userRole->givePermissionTo('view-dashboard');
 
         // Admin Role
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $adminRole = Role::firstOrCreate(['name' => SystemAccess::ADMIN_ROLE]);
         $adminRole->givePermissionTo([
             'view-dashboard',
             
@@ -72,14 +73,14 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // SuperAdmin Role
-        $superAdminRole = Role::firstOrCreate(['name' => 'SuperAdmin']);
+        $superAdminRole = Role::firstOrCreate(['name' => SystemAccess::SUPER_ADMIN_ROLE]);
         // No explicit permissions assigned because it bypasses checks via Gate::before in AppServiceProvider
 
         // 3. Create Default Users for Testing
         
         // SuperAdmin User
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => SystemAccess::SUPER_ADMIN_EMAIL],
             [
                 'name' => 'Super Admin User',
                 'password' => Hash::make('password'),

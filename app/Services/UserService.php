@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\UserServiceInterface;
 use App\Models\User;
+use App\Support\SystemAccess;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +24,7 @@ class UserService implements UserServiceInterface
         if (!empty($data['roles'])) {
             $user->syncRoles($data['roles']);
         } else {
-            $user->assignRole('User'); // default role
+            $user->assignRole(SystemAccess::USER_ROLE); // default role
         }
 
         return $user;
@@ -35,7 +36,7 @@ class UserService implements UserServiceInterface
     public function updateUser(User $user, array $data): User
     {
         // Prevent modifying the Super Admin seed email to avoid breaking the quick-login demo accounts
-        if ($user->email === 'superadmin@example.com' && ($data['email'] ?? '') !== 'superadmin@example.com') {
+        if ($user->email === SystemAccess::SUPER_ADMIN_EMAIL && ($data['email'] ?? '') !== SystemAccess::SUPER_ADMIN_EMAIL) {
             throw new \InvalidArgumentException('Cannot change the email of the core Super Admin account.');
         }
 
@@ -52,9 +53,9 @@ class UserService implements UserServiceInterface
 
         $roles = $data['roles'] ?? [];
         // Keep SuperAdmin role on the seed SuperAdmin account to prevent locking out
-        if ($user->email === 'superadmin@example.com') {
-            if (!in_array('SuperAdmin', $roles)) {
-                $roles[] = 'SuperAdmin';
+        if ($user->email === SystemAccess::SUPER_ADMIN_EMAIL) {
+            if (!in_array(SystemAccess::SUPER_ADMIN_ROLE, $roles)) {
+                $roles[] = SystemAccess::SUPER_ADMIN_ROLE;
             }
         }
 
@@ -74,7 +75,7 @@ class UserService implements UserServiceInterface
         }
 
         // Don't delete seed SuperAdmin account
-        if ($user->email === 'superadmin@example.com') {
+        if ($user->email === SystemAccess::SUPER_ADMIN_EMAIL) {
             throw new \LogicException('Cannot delete the system Super Admin account.');
         }
 
