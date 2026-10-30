@@ -15,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Contracts\UserServiceInterface::class, \App\Services\UserService::class);
         $this->app->bind(\App\Contracts\RoleServiceInterface::class, \App\Services\RoleService::class);
         $this->app->bind(\App\Contracts\PermissionServiceInterface::class, \App\Services\PermissionService::class);
+        $this->app->bind(\App\Contracts\ProfileServiceInterface::class, \App\Services\ProfileService::class);
     }
 
     /**
