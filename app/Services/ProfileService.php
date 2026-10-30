@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\ProfileServiceInterface;
 use App\Models\User;
+use App\Support\SystemAccess;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,7 @@ class ProfileService implements ProfileServiceInterface
     /**
      * The email of the protected Super Admin seed account.
      */
-    private const PROTECTED_SEED_EMAIL = 'superadmin@example.com';
+    private const PROTECTED_SEED_EMAIL = SystemAccess::SUPER_ADMIN_EMAIL;
 
     /**
      * Update the authenticated user's own profile.

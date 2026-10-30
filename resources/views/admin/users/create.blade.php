@@ -106,17 +106,17 @@
                                                name="roles[]" 
                                                value="{{ $role->name }}" 
                                                id="role-{{ $role->id }}"
-                                               {{ $role->name === 'User' ? 'checked' : '' }}>
+                                               {{ $role->name === \App\Support\SystemAccess::USER_ROLE ? 'checked' : '' }}>
                                         <div class="ms-3">
                                             <label class="form-check-label fw-bold text-body mb-0" for="role-{{ $role->id }}" style="cursor: pointer;">
                                                 {{ $role->name }}
                                             </label>
                                             <span class="text-muted d-block small mt-0.5">
-                                                @if($role->name === 'SuperAdmin')
+                                                @if($role->name === \App\Support\SystemAccess::SUPER_ADMIN_ROLE)
                                                     Full unrestricted system admin access (bypasses all checks).
-                                                @elseif($role->name === 'Admin')
+                                                @elseif($role->name === \App\Support\SystemAccess::ADMIN_ROLE)
                                                     Management access to view dashboard, edit users, and manage roles.
-                                                @elseif($role->name === 'User')
+                                                @elseif($role->name === \App\Support\SystemAccess::USER_ROLE)
                                                     Standard user access, limited only to view dashboard details.
                                                 @else
                                                     Custom role with specific access privileges.

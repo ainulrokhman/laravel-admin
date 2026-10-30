@@ -5,6 +5,7 @@ namespace App\DataTables;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
 use App\Contracts\RoleServiceInterface;
+use App\Support\SystemAccess;
 
 class RoleDataTable
 {
@@ -42,7 +43,7 @@ class RoleDataTable
                 return '<div class="text-center"><span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold py-2 px-3 fs-7 border border-secondary border-opacity-20 rounded-pill">' . $role->users_count . ' Users</span></div>';
             })
             ->addColumn('permissions_preview', function ($role) {
-                if ($role->name === 'SuperAdmin') {
+                if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
                     return '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 rounded-pill py-1 px-2 text-xs">all-permissions (Bypass)</span>';
                 }
                 $allPerms = $role->permissions;
@@ -64,7 +65,7 @@ class RoleDataTable
             })
             ->addColumn('actions', function ($role) {
                 $html = '<div class="d-flex justify-content-end gap-2">';
-                if ($role->name === 'SuperAdmin') {
+                if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
                     $html .= '<button class="btn btn-sm btn-light border" disabled title="SuperAdmin permissions are locked"><i class="bi bi-lock-fill text-muted me-1"></i> Locked</button>';
                 } else {
                     if (auth()->user()->can('role-edit')) {
