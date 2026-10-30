@@ -115,6 +115,9 @@ The database seeder configures three roles and demo users with the default passw
 | **Admin** | `admin@example.com` | `password` | User CRUD, Role CRUD, view permissions, view dashboard |
 | **Regular User** | `user@example.com` | `password` | View dashboard only |
 
+> [!WARNING]
+> **Demo accounts — never use them in production.** These seeded accounts, including the quick-login buttons on the login page, exist for local development and demos only, and their credentials are public in this README. Do **not** run the seeder on a production server. If you already did, change these passwords immediately or delete the demo accounts.
+
 ---
 
 ## 🛡️ Architecture & Guidelines
@@ -165,6 +168,27 @@ All main data lists should load dynamically and asynchronously using Ajax Yajra 
  *   For core database models (e.g. `User`, `Role`, `Permission`) requiring change-tracking, implement the `Spatie\Activitylog\Traits\LogsActivity` trait and define the `getActivitylogOptions()` method.
  *   To track third-party vendor models like Spatie's `Role` and `Permission`, extend Spatie's base models under `App\Models\Role` and `App\Models\Permission` and point to them in `config/permission.php`.
  *   Access to Activity Logs is restricted using the `activity-log-list` permission.
+
+---
+
+## 🧪 Testing
+
+The test suite runs against its own MySQL database, as configured in `phpunit.xml` (database `laravel-admin-testing`, user `root`, password `root`). Create that database first, then run:
+
+```bash
+# Install PHP dependencies
+composer install
+
+# Build the frontend assets (required: tests that render views
+# fail without the Vite manifest)
+npm ci
+npm run build
+
+# Run the full test suite
+php artisan test
+```
+
+The same suite also runs automatically on GitHub Actions for every push and pull request to `master`.
 
 ---
 
