@@ -4,31 +4,30 @@ namespace Tests\Feature\Admin;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
-use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsDemoUsers;
+use Tests\Feature\Admin\Concerns\TestsResourceAccess;
 use Tests\TestCase;
 
 class RoleManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsDemoUsers, TestsResourceAccess;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Seed default roles, permissions, and demo users
-        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seedDemoUsers();
     }
 
-    private function admin(): User
+    protected function indexRouteName(): string
     {
-        return User::where('email', 'admin@example.com')->firstOrFail();
+        return 'admin.roles.index';
     }
 
-    private function regularUser(): User
+    protected function indexViewName(): string
     {
-        return User::where('email', 'user@example.com')->firstOrFail();
+        return 'admin.roles.index';
     }
 
     /**
@@ -36,9 +35,7 @@ class RoleManagementTest extends TestCase
      */
     public function test_guest_is_redirected_to_login(): void
     {
-        $response = $this->get(route('admin.roles.index'));
-
-        $response->assertRedirect(route('login'));
+        $this->assertGuestIsRedirectedToLogin();
     }
 
     /**
@@ -46,10 +43,7 @@ class RoleManagementTest extends TestCase
      */
     public function test_user_without_permission_cannot_access_role_list(): void
     {
-        $response = $this->actingAs($this->regularUser())
-            ->get(route('admin.roles.index'));
-
-        $response->assertForbidden();
+        $this->assertUserWithoutPermissionCannotAccessList();
     }
 
     /**
@@ -57,11 +51,7 @@ class RoleManagementTest extends TestCase
      */
     public function test_admin_can_view_role_list(): void
     {
-        $response = $this->actingAs($this->admin())
-            ->get(route('admin.roles.index'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.roles.index');
+        $this->assertAdminCanViewList();
     }
 
     /**

@@ -3,36 +3,46 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Permission;
-use App\Models\User;
-use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsDemoUsers;
+use Tests\Feature\Admin\Concerns\TestsResourceAccess;
 use Tests\TestCase;
 
 class PermissionManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsDemoUsers, TestsResourceAccess;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Seed default roles, permissions, and demo users
-        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seedDemoUsers();
     }
 
-    private function admin(): User
+    protected function indexRouteName(): string
     {
-        return User::where('email', 'admin@example.com')->firstOrFail();
+        return 'admin.permissions.index';
     }
 
-    private function superAdmin(): User
+    protected function indexViewName(): string
     {
-        return User::where('email', 'superadmin@example.com')->firstOrFail();
+        return 'admin.permissions.index';
     }
 
-    private function regularUser(): User
+    /**
+     * The seeded core permission the protection rules apply to.
+     */
+    private function protectedPermission(): Permission
     {
-        return User::where('email', 'user@example.com')->firstOrFail();
+        return Permission::where('name', 'user-list')->firstOrFail();
+    }
+
+    /**
+     * Create a custom permission outside the protected core set.
+     */
+    private function createCustomPermission(): Permission
+    {
+        return Permission::create(['name' => 'custom-thing', 'guard_name' => 'web']);
     }
 
     /**
@@ -40,9 +50,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_guest_is_redirected_to_login(): void
     {
-        $response = $this->get(route('admin.permissions.index'));
-
-        $response->assertRedirect(route('login'));
+        $this->assertGuestIsRedirectedToLogin();
     }
 
     /**
@@ -50,10 +58,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_user_without_permission_cannot_access_permission_list(): void
     {
-        $response = $this->actingAs($this->regularUser())
-            ->get(route('admin.permissions.index'));
-
-        $response->assertForbidden();
+        $this->assertUserWithoutPermissionCannotAccessList();
     }
 
     /**
@@ -61,11 +66,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_admin_can_view_permission_list(): void
     {
-        $response = $this->actingAs($this->admin())
-            ->get(route('admin.permissions.index'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.permissions.index');
+        $this->assertAdminCanViewList();
     }
 
     /**
@@ -103,7 +104,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_protected_permission_cannot_be_updated(): void
     {
-        $permission = Permission::where('name', 'user-list')->firstOrFail();
+        $permission = $this->protectedPermission();
 
         $response = $this->actingAs($this->superAdmin())
             ->put(route('admin.permissions.update', $permission), [
@@ -120,7 +121,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_protected_permission_cannot_be_deleted(): void
     {
-        $permission = Permission::where('name', 'user-list')->firstOrFail();
+        $permission = $this->protectedPermission();
 
         $response = $this->actingAs($this->superAdmin())
             ->delete(route('admin.permissions.destroy', $permission));
@@ -135,7 +136,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_custom_permission_can_be_updated(): void
     {
-        $permission = Permission::create(['name' => 'custom-thing', 'guard_name' => 'web']);
+        $permission = $this->createCustomPermission();
 
         $response = $this->actingAs($this->superAdmin())
             ->put(route('admin.permissions.update', $permission), [
@@ -152,7 +153,7 @@ class PermissionManagementTest extends TestCase
      */
     public function test_custom_permission_can_be_deleted(): void
     {
-        $permission = Permission::create(['name' => 'custom-thing', 'guard_name' => 'web']);
+        $permission = $this->createCustomPermission();
 
         $response = $this->actingAs($this->superAdmin())
             ->delete(route('admin.permissions.destroy', $permission));

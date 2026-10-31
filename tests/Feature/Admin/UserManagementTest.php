@@ -3,35 +3,43 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsDemoUsers;
+use Tests\Feature\Admin\Concerns\TestsResourceAccess;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsDemoUsers, TestsResourceAccess;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Seed default roles, permissions, and demo users
-        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->seedDemoUsers();
     }
 
-    private function admin(): User
+    protected function indexRouteName(): string
     {
-        return User::where('email', 'admin@example.com')->firstOrFail();
+        return 'admin.users.index';
     }
 
-    private function superAdmin(): User
+    protected function indexViewName(): string
     {
-        return User::where('email', 'superadmin@example.com')->firstOrFail();
+        return 'admin.users.index';
     }
 
-    private function regularUser(): User
+    /**
+     * A valid payload for creating a user, with optional overrides.
+     */
+    private function validUserPayload(array $overrides = []): array
     {
-        return User::where('email', 'user@example.com')->firstOrFail();
+        return array_merge([
+            'name' => 'New Member',
+            'email' => 'member@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ], $overrides);
     }
 
     /**
@@ -39,9 +47,7 @@ class UserManagementTest extends TestCase
      */
     public function test_guest_is_redirected_to_login(): void
     {
-        $response = $this->get(route('admin.users.index'));
-
-        $response->assertRedirect(route('login'));
+        $this->assertGuestIsRedirectedToLogin();
     }
 
     /**
@@ -49,10 +55,7 @@ class UserManagementTest extends TestCase
      */
     public function test_user_without_permission_cannot_access_user_list(): void
     {
-        $response = $this->actingAs($this->regularUser())
-            ->get(route('admin.users.index'));
-
-        $response->assertForbidden();
+        $this->assertUserWithoutPermissionCannotAccessList();
     }
 
     /**
@@ -60,11 +63,7 @@ class UserManagementTest extends TestCase
      */
     public function test_admin_can_view_user_list(): void
     {
-        $response = $this->actingAs($this->admin())
-            ->get(route('admin.users.index'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.users.index');
+        $this->assertAdminCanViewList();
     }
 
     /**
@@ -73,13 +72,9 @@ class UserManagementTest extends TestCase
     public function test_admin_can_create_user_with_role(): void
     {
         $response = $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
-                'name' => 'New Member',
-                'email' => 'member@example.com',
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
+            ->post(route('admin.users.store'), $this->validUserPayload([
                 'roles' => ['Admin'],
-            ]);
+            ]));
 
         $response->assertRedirect(route('admin.users.index'));
         $response->assertSessionHas('success');
@@ -93,12 +88,10 @@ class UserManagementTest extends TestCase
     public function test_created_user_without_role_gets_default_user_role(): void
     {
         $this->actingAs($this->admin())
-            ->post(route('admin.users.store'), [
+            ->post(route('admin.users.store'), $this->validUserPayload([
                 'name' => 'Plain Member',
                 'email' => 'plain@example.com',
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
-            ]);
+            ]));
 
         $this->assertTrue(User::where('email', 'plain@example.com')->first()->hasRole('User'));
     }
