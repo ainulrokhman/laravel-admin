@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class DataTableTest extends TestCase
@@ -36,59 +37,61 @@ class DataTableTest extends TestCase
     }
 
     /**
-     * Test the users DataTable returns the seeded users as JSON.
+     * Assert the shared Yajra DataTables JSON contract and return the payload.
      */
-    public function test_users_datatable_returns_seeded_users(): void
+    private function assertDataTableShape(TestResponse $response): array
     {
-        $response = $this->datatableJson('admin.users.index');
-
         $response->assertOk();
         $response->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
 
-        $data = $response->json();
-        $this->assertSame(3, $data['recordsTotal']);
-        $this->assertArrayHasKey('user_details', $data['data'][0]);
-        $this->assertArrayHasKey('assigned_roles', $data['data'][0]);
-        $this->assertArrayHasKey('actions', $data['data'][0]);
-        $this->assertStringContainsString('superadmin@example.com', json_encode($data['data']));
+        return $response->json();
     }
 
     /**
-     * Test the roles DataTable returns the seeded roles as JSON.
+     * Scenarios for the resource DataTables backed by seeded rows:
+     * route name, page length, expected total, expected first-row
+     * columns, and a string that must appear in the payload.
+     *
+     * @return array<string, array{string, int, int, list<string>, string}>
      */
-    public function test_roles_datatable_returns_seeded_roles(): void
+    public static function seededDataTableProvider(): array
     {
-        $response = $this->datatableJson('admin.roles.index');
-
-        $response->assertOk();
-        $response->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
-
-        $data = $response->json();
-        $this->assertSame(3, $data['recordsTotal']);
-        $this->assertArrayHasKey('role_name', $data['data'][0]);
-        $this->assertArrayHasKey('permissions_preview', $data['data'][0]);
-        $this->assertArrayHasKey('actions', $data['data'][0]);
-        $this->assertStringContainsString('SuperAdmin', json_encode($data['data']));
+        return [
+            'users' => [
+                'admin.users.index', 10, 3,
+                ['user_details', 'assigned_roles', 'actions'],
+                'superadmin@example.com',
+            ],
+            'roles' => [
+                'admin.roles.index', 10, 3,
+                ['role_name', 'permissions_preview', 'actions'],
+                'SuperAdmin',
+            ],
+            // Permissions ask for one full page: the default page size
+            // of 10 would cut the list before every seeded permission.
+            'permissions' => [
+                'admin.permissions.index', 25, 15,
+                ['permission_name', 'roles_using_this', 'actions'],
+                'user-list',
+            ],
+        ];
     }
 
     /**
-     * Test the permissions DataTable returns the seeded permissions as JSON.
+     * Test a resource DataTable returns its seeded rows as JSON.
+     *
+     * @param  list<string>  $expectedColumns
      */
-    public function test_permissions_datatable_returns_seeded_permissions(): void
+    #[DataProvider('seededDataTableProvider')]
+    public function test_datatable_returns_seeded_rows(string $routeName, int $length, int $expectedTotal, array $expectedColumns, string $expectedContent): void
     {
-        // Ask for one full page: the default page size of 10 would cut
-        // the list before reaching every seeded permission.
-        $response = $this->datatableJson('admin.permissions.index', 25);
+        $data = $this->assertDataTableShape($this->datatableJson($routeName, $length));
 
-        $response->assertOk();
-        $response->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
-
-        $data = $response->json();
-        $this->assertSame(15, $data['recordsTotal']);
-        $this->assertArrayHasKey('permission_name', $data['data'][0]);
-        $this->assertArrayHasKey('roles_using_this', $data['data'][0]);
-        $this->assertArrayHasKey('actions', $data['data'][0]);
-        $this->assertStringContainsString('user-list', json_encode($data['data']));
+        $this->assertSame($expectedTotal, $data['recordsTotal']);
+        foreach ($expectedColumns as $column) {
+            $this->assertArrayHasKey($column, $data['data'][0]);
+        }
+        $this->assertStringContainsString($expectedContent, json_encode($data['data']));
     }
 
     /**
@@ -96,12 +99,8 @@ class DataTableTest extends TestCase
      */
     public function test_activity_logs_datatable_returns_expected_structure(): void
     {
-        $response = $this->datatableJson('admin.activity-logs.index');
+        $data = $this->assertDataTableShape($this->datatableJson('admin.activity-logs.index'));
 
-        $response->assertOk();
-        $response->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
-
-        $data = $response->json();
         $this->assertIsArray($data['data']);
 
         // Seeding creates activity entries; when rows exist they must
