@@ -40,14 +40,14 @@ function deleteRole(row) {
                     <p class="text-muted small mb-0">Define permissions and configure user levels</p>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
-                    <!-- Search Form -->
-                    <form class="position-relative" @submit.prevent>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <!-- Search Form: fluid width, fills the row on small screens
+                         and lets the Create button wrap below instead of clipping -->
+                    <form class="position-relative" style="flex: 1 1 220px;" @submit.prevent>
                         <input type="text"
                                v-model="searchTerm"
-                               class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill"
-                               placeholder="Search roles..."
-                               style="width: 250px;">
+                               class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill w-100"
+                               placeholder="Search roles...">
                         <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                         <a v-if="searchTerm" href="#" class="position-absolute text-muted" style="right: 18px; top: 50%; transform: translateY(-50%);" @click.prevent="searchTerm = ''">
                             <i class="bi bi-x-circle-fill"></i>

@@ -187,18 +187,18 @@ const initialsOf = (name) =>
                     </div>
                     <div class="card-body px-4 pb-4">
                         <div class="d-flex flex-column gap-3">
-                            <div v-for="recent in props.recentUsers" :key="recent.id" class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <img v-if="recent.avatar" :src="`/storage/${recent.avatar}`" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
-                                    <div v-else :class="`bg-${colorFor(recent.id)} bg-opacity-10 text-${colorFor(recent.id)} rounded-circle d-flex align-items-center justify-content-center fw-bold`" style="width: 40px; height: 40px;">
+                            <div v-for="recent in props.recentUsers" :key="recent.id" class="d-flex align-items-center justify-content-between gap-2">
+                                <div class="d-flex align-items-center overflow-hidden">
+                                    <img v-if="recent.avatar" :src="`/storage/${recent.avatar}`" class="rounded-circle flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
+                                    <div v-else :class="`bg-${colorFor(recent.id)} bg-opacity-10 text-${colorFor(recent.id)} rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0`" style="width: 40px; height: 40px;">
                                         {{ initialsOf(recent.name) }}
                                     </div>
-                                    <div class="ms-3">
-                                        <h6 class="mb-0 fw-bold text-body">{{ recent.name }}</h6>
-                                        <small class="text-muted">{{ recent.email }}</small>
+                                    <div class="ms-3 overflow-hidden">
+                                        <h6 class="mb-0 fw-bold text-body text-truncate">{{ recent.name }}</h6>
+                                        <small class="text-muted d-block text-truncate">{{ recent.email }}</small>
                                     </div>
                                 </div>
-                                <span class="badge bg-light text-secondary border">{{ recent.created_at_human }}</span>
+                                <span class="badge bg-light text-secondary border flex-shrink-0">{{ recent.created_at_human }}</span>
                             </div>
 
                             <div v-if="!props.recentUsers.length" class="text-center py-3">
