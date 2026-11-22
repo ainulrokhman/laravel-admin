@@ -4,6 +4,8 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
+import ActionGroup from '../../Components/ActionGroup.vue';
+import ActionButton from '../../Components/ActionButton.vue';
 
 // User list, ported from the former admin/users/index Blade view. The table
 // is fed by the Yajra endpoint on this same URL; cells render structured
@@ -25,7 +27,7 @@ const columns = [
     { key: 'user_details', label: 'User Details' },
     { key: 'assigned_roles', label: 'Assigned Roles', orderable: false },
     { key: 'joined_date', label: 'Joined Date' },
-    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end', width: '160px' },
+    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end' },
 ];
 
 // Role badge colors, mirroring the server-rendered badges: [color, border opacity]
@@ -109,17 +111,11 @@ function deleteUser(row) {
                     </template>
 
                     <template #cell-actions="{ row }">
-                        <div class="d-flex justify-content-end gap-2">
-                            <Link v-if="row.actions.edit_url" :href="row.actions.edit_url" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit User">
-                                <i class="bi bi-pencil-square text-primary"></i> Edit
-                            </Link>
-                            <button v-if="row.actions.delete_url" type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete User" @click="deleteUser(row)">
-                                <i class="bi bi-trash text-danger"></i>
-                            </button>
-                            <button v-else-if="row.actions.delete_disabled_reason" type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled :title="row.actions.delete_disabled_reason">
-                                <i class="bi bi-trash-fill text-muted"></i>
-                            </button>
-                        </div>
+                        <ActionGroup>
+                            <ActionButton v-if="row.actions.edit_url" :href="row.actions.edit_url" icon="bi-pencil-square" color="primary" label="Edit" />
+                            <ActionButton v-if="row.actions.delete_url" icon="bi-trash" color="danger" label="Delete" @click="deleteUser(row)" />
+                            <ActionButton v-else-if="row.actions.delete_disabled_reason" icon="bi-lock-fill" color="muted" :disabled-reason="row.actions.delete_disabled_reason" />
+                        </ActionGroup>
                     </template>
                 </ServerTable>
             </div>

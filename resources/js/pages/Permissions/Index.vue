@@ -4,6 +4,8 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
+import ActionGroup from '../../Components/ActionGroup.vue';
+import ActionButton from '../../Components/ActionButton.vue';
 
 // Permission list with the inline create form, ported from the former
 // admin/permissions/index Blade view. Creating a permission redirects back
@@ -19,7 +21,7 @@ const tableRefreshKey = ref(0);
 const columns = [
     { key: 'permission_name', label: 'Permission Name', name: 'name' },
     { key: 'roles_using_this', label: 'Roles Using This', orderable: false, searchable: false },
-    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end', width: '140px' },
+    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end' },
 ];
 
 const createForm = useForm({
@@ -94,19 +96,13 @@ function deletePermission(row) {
                             </template>
 
                             <template #cell-actions="{ row }">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <span v-if="row.actions.protected" class="badge bg-light text-secondary border d-flex align-items-center py-2 px-3 rounded-2 text-xs">
-                                        <i class="bi bi-lock-fill text-warning me-1"></i> Core
-                                    </span>
+                                <ActionGroup>
+                                    <ActionButton v-if="row.actions.protected" icon="bi-lock-fill" color="muted" disabled-reason="Core permission is protected" />
                                     <template v-else>
-                                        <Link v-if="row.actions.edit_url" :href="row.actions.edit_url" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Permission">
-                                            <i class="bi bi-pencil-square text-primary"></i>
-                                        </Link>
-                                        <button v-if="row.actions.delete_url" type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Permission" @click="deletePermission(row)">
-                                            <i class="bi bi-trash text-danger"></i>
-                                        </button>
+                                        <ActionButton v-if="row.actions.edit_url" :href="row.actions.edit_url" icon="bi-pencil-square" color="primary" label="Edit" />
+                                        <ActionButton v-if="row.actions.delete_url" icon="bi-trash" color="danger" label="Delete" @click="deletePermission(row)" />
                                     </template>
-                                </div>
+                                </ActionGroup>
                             </template>
                         </ServerTable>
                     </div>

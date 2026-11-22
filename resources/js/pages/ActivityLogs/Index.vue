@@ -4,6 +4,8 @@ import { Head } from '@inertiajs/vue3';
 import { Modal } from 'bootstrap';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import ServerTable from '../../Components/ServerTable.vue';
+import ActionGroup from '../../Components/ActionGroup.vue';
+import ActionButton from '../../Components/ActionButton.vue';
 
 // Activity log list with the details modal, ported from the former
 // admin/activity_logs/index Blade view. The table is fed by the Yajra
@@ -17,7 +19,7 @@ const columns = [
     { key: 'action', label: 'Action', name: 'action' },
     { key: 'subject', label: 'Subject', name: 'subject' },
     { key: 'created_at_formatted', label: 'Occurred At', name: 'created_at' },
-    { key: 'actions', label: 'Details', orderable: false, searchable: false, align: 'end', width: '120px' },
+    { key: 'actions', label: 'Details', orderable: false, searchable: false, align: 'end' },
 ];
 
 // --- Details modal state -------------------------------------------------
@@ -120,11 +122,9 @@ const changeRows = computed(() => {
                     </template>
 
                     <template #cell-actions="{ row }">
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="View Properties" @click="openDetails(row)">
-                                <i class="bi bi-eye text-primary me-1"></i> Details
-                            </button>
-                        </div>
+                        <ActionGroup>
+                            <ActionButton icon="bi-eye" color="primary" label="Details" @click="openDetails(row)" />
+                        </ActionGroup>
                     </template>
                 </ServerTable>
             </div>

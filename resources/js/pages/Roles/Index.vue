@@ -4,6 +4,8 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
+import ActionGroup from '../../Components/ActionGroup.vue';
+import ActionButton from '../../Components/ActionButton.vue';
 
 // Role list, ported from the former admin/roles/index Blade view. The table
 // is fed by the Yajra endpoint on this same URL; cells render the structured
@@ -19,7 +21,7 @@ const columns = [
     { key: 'permissions_count', label: 'Permissions Count', name: 'permissions_count', searchable: false },
     { key: 'users_count', label: 'Active Users', name: 'users_count', searchable: false, align: 'center' },
     { key: 'permissions_preview', label: 'Permissions Preview', orderable: false, searchable: false },
-    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end', width: '180px' },
+    { key: 'actions', label: 'Actions', orderable: false, searchable: false, align: 'end' },
 ];
 
 function deleteRole(row) {
@@ -97,22 +99,14 @@ function deleteRole(row) {
                     </template>
 
                     <template #cell-actions="{ row }">
-                        <div class="d-flex justify-content-end gap-2">
-                            <button v-if="row.actions.locked" type="button" class="btn btn-sm btn-light border" disabled title="SuperAdmin permissions are locked">
-                                <i class="bi bi-lock-fill text-muted me-1"></i> Locked
-                            </button>
+                        <ActionGroup>
+                            <ActionButton v-if="row.actions.locked" icon="bi-lock-fill" color="muted" disabled-reason="SuperAdmin permissions are locked" />
                             <template v-else>
-                                <Link v-if="row.actions.edit_url" :href="row.actions.edit_url" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Role">
-                                    <i class="bi bi-pencil-square text-primary"></i> Edit
-                                </Link>
-                                <button v-if="row.actions.delete_url" type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Role" @click="deleteRole(row)">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </button>
-                                <button v-else-if="row.actions.delete_disabled_reason" type="button" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled :title="row.actions.delete_disabled_reason">
-                                    <i class="bi bi-trash-fill text-muted"></i>
-                                </button>
+                                <ActionButton v-if="row.actions.edit_url" :href="row.actions.edit_url" icon="bi-pencil-square" color="primary" label="Edit" />
+                                <ActionButton v-if="row.actions.delete_url" icon="bi-trash" color="danger" label="Delete" @click="deleteRole(row)" />
+                                <ActionButton v-else-if="row.actions.delete_disabled_reason" icon="bi-lock-fill" color="muted" :disabled-reason="row.actions.delete_disabled_reason" />
                             </template>
-                        </div>
+                        </ActionGroup>
                     </template>
                 </ServerTable>
             </div>
