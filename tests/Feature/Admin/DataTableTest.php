@@ -111,4 +111,53 @@ class DataTableTest extends TestCase
             $this->assertArrayHasKey('actions', $data['data'][0]);
         }
     }
+
+    /**
+     * Inertia visits are XHR requests too: the client sends X-Requested-With
+     * alongside X-Inertia. The index endpoints must not mistake such a visit
+     * for a table feed request, or SPA navigation receives table JSON and
+     * the client rejects it as an invalid Inertia response.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function inertiaVisitProvider(): array
+    {
+        return [
+            'users' => ['admin.users.index', 'Users/Index'],
+            'roles' => ['admin.roles.index', 'Roles/Index'],
+            'permissions' => ['admin.permissions.index', 'Permissions/Index'],
+            'activity logs' => ['admin.activity-logs.index', 'ActivityLogs/Index'],
+        ];
+    }
+
+    #[DataProvider('inertiaVisitProvider')]
+    public function test_inertia_visit_to_list_page_returns_page_not_table_json(string $routeName, string $component): void
+    {
+        // The real client learns the asset version from the first full page
+        // load and sends it back on visits; mirror that so the middleware
+        // version check passes.
+        $landing = $this->actingAs($this->admin())->get(route($routeName));
+        $version = $landing->viewData('page')['version'] ?? null;
+
+        $headers = [
+            'X-Requested-With' => 'XMLHttpRequest',
+            'X-Inertia' => 'true',
+        ];
+
+        if ($version !== null) {
+            $headers['X-Inertia-Version'] = $version;
+        }
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders($headers)
+            ->get(route($routeName));
+
+        // Assert the Inertia page-object contract directly: the testing
+        // helper only recognises view-rendered responses, while a visit
+        // answers with the page object as JSON.
+        $response->assertOk();
+        $response->assertHeader('X-Inertia', 'true');
+        $response->assertJsonPath('component', $component);
+        $response->assertJsonMissingPath('recordsTotal');
+    }
 }

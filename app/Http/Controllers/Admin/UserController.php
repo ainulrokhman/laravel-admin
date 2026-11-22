@@ -37,7 +37,10 @@ class UserController extends Controller
     {
         Gate::authorize('user-list');
 
-        if ($request->ajax()) {
+        // Inertia visits are XHR too (the client sends X-Requested-With),
+        // so the table feed must only answer plain AJAX requests; otherwise
+        // SPA navigation to this page would receive table JSON.
+        if ($request->ajax() && ! $request->header('X-Inertia')) {
             return $userDataTable->make();
         }
 
