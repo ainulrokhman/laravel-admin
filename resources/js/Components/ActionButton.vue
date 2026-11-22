@@ -6,6 +6,10 @@
  * parent ActionGroup). With `disabledReason` the button renders disabled
  * with a lock icon, wrapped in a span that carries the tooltip — a
  * disabled button cannot trigger a Bootstrap tooltip by itself.
+ *
+ * Every variant carries btn-sm itself: the group's small sizing only
+ * reaches direct children (.btn-group-sm > .btn), and the disabled
+ * variant sits inside its tooltip wrapper, so it must size itself.
  */
 import { Link } from '@inertiajs/vue3';
 
@@ -27,14 +31,14 @@ defineEmits(['click']);
           data-bs-placement="top"
           :title="disabledReason"
           tabindex="0">
-        <button type="button" class="btn btn-light border" disabled>
+        <button type="button" class="btn btn-sm btn-light border" disabled>
             <i :class="`bi ${icon} text-${color}`"></i>
         </button>
     </span>
 
     <Link v-else-if="href"
           :href="href"
-          class="btn btn-light border"
+          class="btn btn-sm btn-light border"
           data-bs-toggle="tooltip"
           data-bs-placement="top"
           :title="label">
@@ -43,7 +47,7 @@ defineEmits(['click']);
 
     <button v-else
             type="button"
-            class="btn btn-light border"
+            class="btn btn-sm btn-light border"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             :title="label"
