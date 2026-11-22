@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
@@ -41,8 +42,36 @@ class DashboardTest extends TestCase
             ->get(route('admin.dashboard'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('admin.dashboard');
-        $response->assertViewHasAll(['usersCount', 'rolesCount', 'permissionsCount', 'recentUsers']);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('usersCount')
+            ->has('rolesCount')
+            ->has('permissionsCount')
+            ->has('recentUsers')
+            ->has('auth.user')
+            // The regular user holds exactly the view-dashboard permission,
+            // and the shared list must carry its name for menu gating.
+            ->has('auth.permissions', 1)
+            ->where('auth.permissions.0', 'view-dashboard')
+        );
+    }
+
+    /**
+     * Test the shared permissions for a SuperAdmin contain every permission,
+     * mirroring the Gate::before bypass (the role itself syncs none).
+     */
+    public function test_super_admin_shared_permissions_contain_all_permissions(): void
+    {
+        $superAdmin = User::where('email', 'superadmin@example.com')->first();
+
+        $response = $this->actingAs($superAdmin)
+            ->get(route('admin.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('auth.permissions', \Spatie\Permission\Models\Permission::count())
+        );
     }
 
     /**

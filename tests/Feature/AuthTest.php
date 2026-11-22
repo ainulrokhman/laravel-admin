@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -33,7 +34,10 @@ class AuthTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertOk();
-        $response->assertViewIs('auth.login');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Auth/Login')
+            ->has('demoAccounts', 3)
+        );
     }
 
     /**
@@ -138,9 +142,12 @@ class AuthTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertOk();
-        $response->assertSee('quickLogin');
-        $response->assertSee('superadmin@example.com');
-        $response->assertSee('admin@example.com');
-        $response->assertSee('user@example.com');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Auth/Login')
+            ->has('demoAccounts', 3)
+            ->where('demoAccounts.0.email', 'superadmin@example.com')
+            ->where('demoAccounts.1.email', 'admin@example.com')
+            ->where('demoAccounts.2.email', 'user@example.com')
+        );
     }
 }

@@ -5,18 +5,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthController extends Controller
 {
     /**
      * Show the login form.
      */
-    public function showLogin()
+    public function showLogin(): Response|\Illuminate\Http\RedirectResponse
     {
         if (Auth::check()) {
             return redirect('/admin');
         }
-        return view('auth.login');
+
+        return Inertia::render('Auth/Login', [
+            // Seeded demo accounts shown in the "Quick Testing Accounts"
+            // panel; clicking one fills and submits the login form.
+            'demoAccounts' => [
+                ['label' => 'Super Admin', 'note' => 'Full Access', 'color' => 'primary', 'email' => 'superadmin@example.com', 'password' => 'password'],
+                ['label' => 'Admin', 'note' => 'Users & Roles', 'color' => 'success', 'email' => 'admin@example.com', 'password' => 'password'],
+                ['label' => 'Regular User', 'note' => 'Dashboard Only', 'color' => 'info', 'email' => 'user@example.com', 'password' => 'password'],
+            ],
+        ]);
     }
 
     /**
