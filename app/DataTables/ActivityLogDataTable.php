@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
+use App\Support\TableActions;
 
 class ActivityLogDataTable
 {
@@ -117,18 +118,16 @@ class ActivityLogDataTable
             // Encode properties to safely pass as JSON attribute
             $propertiesJson = json_encode($log->properties ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
-            return '<div class="d-flex justify-content-end">
-                    <button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2 view-details-btn" 
-                            data-id="'.$log->id.'" 
-                            data-properties=\''.$propertiesJson.'\' 
-                            data-causer="'.e($log->causer->name ?? 'System').'" 
-                            data-event="'.e($log->event ?? $log->description).'" 
-                            data-subject="'.e(class_basename($log->subject_type ?? 'N/A')).'"
-                            data-time="'.$log->created_at->toDateTimeString().'"
-                            title="View Properties">
-                        <i class="bi bi-eye text-primary me-1"></i> Details
-                    </button>
-                </div>';
+            $attributes = ' data-id="'.$log->id.'"'
+                .' data-properties=\''.$propertiesJson.'\''
+                .' data-causer="'.e($log->causer->name ?? 'System').'"'
+                .' data-event="'.e($log->event ?? $log->description).'"'
+                .' data-subject="'.e(class_basename($log->subject_type ?? 'N/A')).'"'
+                .' data-time="'.$log->created_at->toDateTimeString().'"';
+
+            return TableActions::openGroup()
+                .TableActions::button('bi-eye', 'primary', 'Details', 'view-details-btn', $attributes)
+                .TableActions::closeGroup();
         };
     }
 }

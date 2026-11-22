@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Contracts\RoleServiceInterface;
 use App\Support\SystemAccess;
+use App\Support\TableActions;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -109,25 +110,22 @@ class RoleDataTable
     private function actionsColumn(): \Closure
     {
         return function ($role) {
-            $html = '<div class="d-flex justify-content-end gap-2">';
+            $html = TableActions::openGroup();
             if ($role->name === SystemAccess::SUPER_ADMIN_ROLE) {
-                $html .= '<button class="btn btn-sm btn-light border" disabled title="SuperAdmin permissions are locked"><i class="bi bi-lock-fill text-muted me-1"></i> Locked</button>';
+                $html .= TableActions::locked('SuperAdmin permissions are locked');
             } else {
                 if (auth()->user()->can('role-edit')) {
-                    $html .= '<a href="'.route('admin.roles.edit', $role->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Role"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                    $html .= TableActions::link(route('admin.roles.edit', $role->id), 'bi-pencil-square', 'primary', 'Edit');
                 }
                 if (auth()->user()->can('role-delete')) {
                     if ($this->roleService->isSystemRole($role)) {
-                        $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="Cannot delete system role"><i class="bi bi-trash-fill text-muted"></i></button>';
+                        $html .= TableActions::locked('Cannot delete system role');
                     } else {
-                        $html .= '<form action="'.route('admin.roles.destroy', $role->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this role? Any assigned users will lose these permissions.\')">';
-                        $html .= csrf_field().method_field('DELETE');
-                        $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Role"><i class="bi bi-trash text-danger"></i></button>';
-                        $html .= '</form>';
+                        $html .= TableActions::deleteForm(route('admin.roles.destroy', $role->id), 'Are you sure you want to delete this role? Any assigned users will lose these permissions.');
                     }
                 }
             }
-            $html .= '</div>';
+            $html .= TableActions::closeGroup();
 
             return $html;
         };

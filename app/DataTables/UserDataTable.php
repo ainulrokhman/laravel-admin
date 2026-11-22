@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\User;
 use App\Support\SystemAccess;
+use App\Support\TableActions;
 use Illuminate\Http\JsonResponse;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -94,23 +95,20 @@ class UserDataTable
     private function actionsColumn(): \Closure
     {
         return function ($user) {
-            $html = '<div class="d-flex justify-content-end gap-2">';
+            $html = TableActions::openGroup();
             if (auth()->user()->can('user-edit')) {
-                $html .= '<a href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit User"><i class="bi bi-pencil-square text-primary"></i> Edit</a>';
+                $html .= TableActions::link(route('admin.users.edit', $user->id), 'bi-pencil-square', 'primary', 'Edit');
             }
             if (auth()->user()->can('user-delete')) {
                 if (auth()->id() === $user->id) {
-                    $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="You cannot delete yourself"><i class="bi bi-trash-fill text-muted"></i></button>';
+                    $html .= TableActions::locked('You cannot delete yourself');
                 } elseif ($user->email === SystemAccess::SUPER_ADMIN_EMAIL) {
-                    $html .= '<button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" disabled title="Cannot delete Super Admin account"><i class="bi bi-trash-fill text-muted"></i></button>';
+                    $html .= TableActions::locked('Cannot delete Super Admin account');
                 } else {
-                    $html .= '<form action="'.route('admin.users.destroy', $user->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete user '.e($user->name).'?\')">';
-                    $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete User"><i class="bi bi-trash text-danger"></i></button>';
-                    $html .= '</form>';
+                    $html .= TableActions::deleteForm(route('admin.users.destroy', $user->id), 'Are you sure you want to delete user '.$user->name.'?');
                 }
             }
-            $html .= '</div>';
+            $html .= TableActions::closeGroup();
 
             return $html;
         };

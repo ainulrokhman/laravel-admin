@@ -7,11 +7,13 @@
 
 A professional, feature-rich admin template and starter kit built on **Laravel 12**, styled with **AdminLTE 4 (Bootstrap 5)**, featuring full Role-Based Access Control (RBAC) via **Spatie Laravel Permission**, and server-side paginated tables via **Yajra DataTables**.
 
+> **This branch (`master`) is the classic server-rendered Blade edition.** The single-page application edition — the same backend with an **Inertia.js + Vue 3** interface — lives on the `spa` branch. Both editions share the same controllers, models, permissions, and database structure; they differ in the presentation layer only.
+
 ---
 
 ## 🚀 Key Features
 
-*   **Modern Admin Interface**: Beautiful layout built using **AdminLTE 4** with a fully responsive sidebar, header, dark/light theme options, and custom modern typography.
+*   **Modern Admin Interface**: Beautiful layout built using **stock AdminLTE 4** (no custom CSS) with a fully responsive sidebar, header, and dark/light theme options.
 *   **Robust RBAC System**: Full role and permission management using **Spatie Laravel Permission**.
 *   **High Performance Data Handling**: Server-side pagination, search, and filtering via **Yajra DataTables** loaded asynchronously using AJAX.
 *   **Secure Authentication**: Streamlined user login and logout flows out-of-the-box.

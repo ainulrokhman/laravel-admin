@@ -23,13 +23,13 @@
                 </div>
                 
                 <!-- Search Form -->
-                <form id="search-form" class="position-relative" onsubmit="return false;">
+                <form id="search-form" class="position-relative" style="flex: 0 1 220px;" onsubmit="return false;">
                     <input type="text" 
                            name="search" 
                            value="" 
-                           class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill" 
+                           class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill w-100" 
                            placeholder="Search permissions..." 
-                           style="width: 220px;">
+                           ">
                     <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                     <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
                         <i class="bi bi-x-circle-fill"></i>
@@ -57,7 +57,7 @@
                             <tr>
                                 <th class="text-secondary fw-semibold">Permission Name</th>
                                 <th class="text-secondary fw-semibold">Roles Using This</th>
-                                <th style="width: 140px;" class="text-secondary fw-semibold text-end">Actions</th>
+                                <th class="text-secondary fw-semibold text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>

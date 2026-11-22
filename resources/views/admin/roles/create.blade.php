@@ -39,7 +39,7 @@
             </div>
 
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex align-items-center justify-content-between">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div>
                         <h5 class="mb-0 fw-bold text-body">Assign Permissions</h5>
                         <p class="text-muted small mb-0">Grant permissions by toggling specific groups</p>

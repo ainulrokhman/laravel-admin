@@ -15,15 +15,14 @@
             <p class="text-muted small mb-0">Define permissions and configure user levels</p>
         </div>
         
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
             <!-- Search Form -->
-            <form id="search-form" class="position-relative" onsubmit="return false;">
+            <form id="search-form" class="position-relative" style="flex: 1 1 220px;" onsubmit="return false;">
                 <input type="text" 
                        name="search" 
                        value="" 
-                       class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill" 
-                       placeholder="Search roles..." 
-                       style="width: 250px;">
+                       class="form-control bg-light bg-opacity-75 border-secondary border-opacity-20 py-2 ps-5 rounded-pill w-100" 
+                       placeholder="Search roles..." ">
                 <i class="bi bi-search position-absolute text-muted" style="left: 18px; top: 50%; transform: translateY(-50%);"></i>
                 <a href="#" id="clear-search" class="position-absolute text-muted hover-text-dark d-none" style="right: 18px; top: 50%; transform: translateY(-50%);">
                     <i class="bi bi-x-circle-fill"></i>
@@ -62,7 +61,7 @@
                         <th class="text-secondary fw-semibold">Permissions Count</th>
                         <th class="text-secondary fw-semibold text-center">Active Users</th>
                         <th class="text-secondary fw-semibold">Permissions Preview</th>
-                        <th style="width: 180px;" class="text-secondary fw-semibold text-end">Actions</th>
+                        <th class="text-secondary fw-semibold text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

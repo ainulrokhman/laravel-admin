@@ -184,21 +184,21 @@
                         // Consistent color selection based on ID
                         $color = $colors[$user->id % count($colors)];
                     @endphp
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="d-flex align-items-center overflow-hidden">
                             @if(isset($user->avatar) && $user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
+                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar">
                             @else
-                                <div class="bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                <div class="bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 40px; height: 40px;">
                                     {{ strtoupper($initials) }}
                                 </div>
                             @endif
-                            <div class="ms-3">
-                                <h6 class="mb-0 fw-bold text-body">{{ $user->name }}</h6>
-                                <small class="text-muted">{{ $user->email }}</small>
+                            <div class="ms-3 overflow-hidden">
+                                <h6 class="mb-0 fw-bold text-body text-truncate">{{ $user->name }}</h6>
+                                <small class="text-muted d-block text-truncate">{{ $user->email }}</small>
                             </div>
                         </div>
-                        <span class="badge bg-light text-secondary border">{{ $user->created_at->diffForHumans() }}</span>
+                        <span class="badge bg-light text-secondary border flex-shrink-0">{{ $user->created_at->diffForHumans() }}</span>
                     </div>
                     @empty
                     <div class="text-center py-3">

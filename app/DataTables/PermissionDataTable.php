@@ -6,6 +6,7 @@ use App\Contracts\PermissionServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;
 use Yajra\DataTables\Facades\DataTables;
+use App\Support\TableActions;
 
 class PermissionDataTable
 {
@@ -77,21 +78,18 @@ class PermissionDataTable
     {
         return function ($permission) {
             $isProtected = $this->permissionService->isPermissionProtected($permission);
-            $html = '<div class="d-flex justify-content-end gap-2">';
+            $html = TableActions::openGroup();
             if ($isProtected) {
-                $html .= '<span class="badge bg-light text-secondary border d-flex align-items-center py-2 px-3 rounded-2 text-xs"><i class="bi bi-lock-fill text-warning me-1"></i> Core</span>';
+                $html .= TableActions::locked('Core permission is protected');
             } else {
                 if (auth()->user()->can('permission-edit')) {
-                    $html .= '<a href="'.route('admin.permissions.edit', $permission->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Permission"><i class="bi bi-pencil-square text-primary"></i></a>';
+                    $html .= TableActions::link(route('admin.permissions.edit', $permission->id), 'bi-pencil-square', 'primary', 'Edit');
                 }
                 if (auth()->user()->can('permission-delete')) {
-                    $html .= '<form action="'.route('admin.permissions.destroy', $permission->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this permission? This action will remove it from all assigned roles.\')">';
-                    $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Permission"><i class="bi bi-trash text-danger"></i></button>';
-                    $html .= '</form>';
+                    $html .= TableActions::deleteForm(route('admin.permissions.destroy', $permission->id), 'Are you sure you want to delete this permission? This action will remove it from all assigned roles.');
                 }
             }
-            $html .= '</div>';
+            $html .= TableActions::closeGroup();
 
             return $html;
         };

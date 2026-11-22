@@ -348,6 +348,16 @@
                 })
         })
     </script>
+    <!-- Bootstrap Tooltips: one delegated initialisation for the whole panel.
+         The selector option also covers rows DataTables draws later via AJAX,
+         so action buttons never need re-initialising after a redraw. -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new bootstrap.Tooltip(document.body, {
+                selector: '[data-bs-toggle="tooltip"]'
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
