@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Admin\Concerns;
 
+use Inertia\Testing\AssertableInertia as Assert;
+
 /**
  * Shared access-control assertions for the admin resource index pages.
  *
@@ -16,9 +18,9 @@ trait TestsResourceAccess
     abstract protected function indexRouteName(): string;
 
     /**
-     * The view rendered by the resource index under test.
+     * The Inertia component rendered by the resource index under test.
      */
-    abstract protected function indexViewName(): string;
+    abstract protected function indexComponentName(): string;
 
     /**
      * Assert a guest asking for the index is sent to the login page.
@@ -42,7 +44,8 @@ trait TestsResourceAccess
     }
 
     /**
-     * Assert an admin can open the index page.
+     * Assert an admin can open the index page. Classes may add page-specific
+     * prop assertions through additionalIndexAssertions().
      */
     protected function assertAdminCanViewList(): void
     {
@@ -50,6 +53,16 @@ trait TestsResourceAccess
             ->get(route($this->indexRouteName()));
 
         $response->assertStatus(200);
-        $response->assertViewIs($this->indexViewName());
+        $response->assertInertia(fn (Assert $page) => $this->additionalIndexAssertions(
+            $page->component($this->indexComponentName())
+        ));
+    }
+
+    /**
+     * Extra assertions on the index page object; a no-op by default.
+     */
+    protected function additionalIndexAssertions(Assert $page): Assert
+    {
+        return $page;
     }
 }

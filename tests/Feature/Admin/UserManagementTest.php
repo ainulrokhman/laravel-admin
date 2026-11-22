@@ -25,25 +25,17 @@ class UserManagementTest extends TestCase
         return 'admin.users.index';
     }
 
-    protected function indexViewName(): string
+    protected function indexComponentName(): string
     {
-        return 'admin.users.index';
+        return 'Users/Index';
     }
 
     /**
-     * The user list is an Inertia page now, so the shared trait assertion is
-     * replaced with the equivalent component assertion.
+     * The user index also receives the initial search term as a prop.
      */
-    protected function assertAdminCanViewList(): void
+    protected function additionalIndexAssertions(Assert $page): Assert
     {
-        $response = $this->actingAs($this->admin())
-            ->get(route($this->indexRouteName()));
-
-        $response->assertStatus(200);
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('Users/Index')
-            ->has('search')
-        );
+        return $page->has('search');
     }
 
     /**
