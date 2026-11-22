@@ -12,6 +12,10 @@ class ActivityLogDataTable
     /**
      * Build the DataTable response.
      *
+     * Same Yajra protocol as before, but the added columns carry structured
+     * data instead of pre-rendered HTML so the Vue table renders the cells.
+     * The `actions` column carries the details payload the modal displays.
+     *
      * @return JsonResponse
      */
     public function make()
@@ -31,104 +35,98 @@ class ActivityLogDataTable
                         ->orWhere('email', 'like', "%{$keyword}%");
                 });
             })
-            ->rawColumns(['actor', 'action', 'subject', 'created_at_formatted', 'actions'])
             ->make(true);
     }
 
     /**
-     * Build the `actor` column renderer.
+     * Build the `actor` column data: causer name/email, or null when the
+     * activity was not caused by a user (rendered as System / Anonymous).
      */
     private function actorColumn(): \Closure
     {
         return function ($log) {
-            if ($log->causer) {
-                return '<div><span class="fw-bold text-body d-block">'.e($log->causer->name).'</span><span class="text-muted small">'.e($log->causer->email).'</span></div>';
+            if (! $log->causer) {
+                return null;
             }
 
-            return '<span class="text-muted italic">System / Anonymous</span>';
+            return [
+                'name' => $log->causer->name,
+                'email' => $log->causer->email,
+            ];
         };
     }
 
     /**
-     * Build the `action` column renderer.
+     * Build the `action` column data: event name plus its badge color
+     * (created green, updated blue, deleted red, anything else gray).
      */
     private function actionColumn(): \Closure
     {
         return function ($log) {
             $event = $log->event ?? $log->description;
-            $badgeClass = 'bg-secondary';
 
-            if ($event === 'created') {
-                $badgeClass = 'bg-success';
-            } elseif ($event === 'updated') {
-                $badgeClass = 'bg-primary';
-            } elseif ($event === 'deleted') {
-                $badgeClass = 'bg-danger';
-            }
+            $color = match ($event) {
+                'created' => 'success',
+                'updated' => 'primary',
+                'deleted' => 'danger',
+                default => 'secondary',
+            };
 
-            return '<span class="badge '.$badgeClass.' bg-opacity-10 text-'.str_replace('bg-', '', $badgeClass).' border border-'.str_replace('bg-', '', $badgeClass).' border-opacity-20 px-2.5 py-1.5 small fw-semibold text-uppercase">'.e($event).'</span>';
+            return [
+                'event' => $event,
+                'color' => $color,
+            ];
         };
     }
 
     /**
-     * Build the `subject` column renderer.
+     * Build the `subject` column data: subject class basename, a display
+     * name when the subject still exists, and the subject id.
      */
     private function subjectColumn(): \Closure
     {
         return function ($log) {
-            if ($log->subject_type) {
-                $class = class_basename($log->subject_type);
-                $subjectName = '';
-
-                // Try to get a descriptive name from the subject model if it's not deleted
-                if ($log->subject) {
-                    $subjectName = $log->subject->name ?? $log->subject->title ?? '';
-                }
-
-                $display = '<span class="fw-medium text-body">'.e($class).'</span>';
-                if ($subjectName) {
-                    $display .= ' <span class="text-muted small">('.e($subjectName).')</span>';
-                }
-                $display .= ' <span class="badge bg-light text-secondary border ms-1 small">ID: '.$log->subject_id.'</span>';
-
-                return $display;
+            if (! $log->subject_type) {
+                return null;
             }
 
-            return '<span class="text-muted small">-</span>';
+            return [
+                'class' => class_basename($log->subject_type),
+                // Try to get a descriptive name from the subject model if it's not deleted
+                'name' => $log->subject ? ($log->subject->name ?? $log->subject->title ?? '') : '',
+                'id' => $log->subject_id,
+            ];
         };
     }
 
     /**
-     * Build the `created_at_formatted` column renderer.
+     * Build the `created_at_formatted` column data: human-readable relative
+     * time plus the exact timestamp for the tooltip.
      */
     private function createdAtFormattedColumn(): \Closure
     {
         return function ($log) {
-            return '<span class="text-secondary small" title="'.$log->created_at->toDateTimeString().'">'.$log->created_at->diffForHumans().'</span>';
+            return [
+                'human' => $log->created_at->diffForHumans(),
+                'full' => $log->created_at->toDateTimeString(),
+            ];
         };
     }
 
     /**
-     * Build the `actions` column renderer.
+     * Build the `actions` column data: everything the details modal shows —
+     * the recorded properties plus actor, event, subject, and timestamp.
      */
     private function actionsColumn(): \Closure
     {
         return function ($log) {
-            // Encode properties to safely pass as JSON attribute
-            $propertiesJson = json_encode($log->properties ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-
-            return '<div class="d-flex justify-content-end">
-                    <button class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2 view-details-btn" 
-                            data-id="'.$log->id.'" 
-                            data-properties=\''.$propertiesJson.'\' 
-                            data-causer="'.e($log->causer->name ?? 'System').'" 
-                            data-event="'.e($log->event ?? $log->description).'" 
-                            data-subject="'.e(class_basename($log->subject_type ?? 'N/A')).'"
-                            data-time="'.$log->created_at->toDateTimeString().'"
-                            title="View Properties">
-                        <i class="bi bi-eye text-primary me-1"></i> Details
-                    </button>
-                </div>';
+            return [
+                'properties' => $log->properties ?? [],
+                'causer_name' => $log->causer->name ?? 'System',
+                'event' => $log->event ?? $log->description,
+                'subject_class' => class_basename($log->subject_type ?? 'N/A'),
+                'time' => $log->created_at->toDateTimeString(),
+            ];
         };
     }
 }

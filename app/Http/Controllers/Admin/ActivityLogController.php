@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\DataTables\ActivityLogDataTable;
+use Inertia\Inertia;
 
 class ActivityLogController extends Controller
 {
@@ -20,6 +21,6 @@ class ActivityLogController extends Controller
             return $dataTable->make();
         }
 
-        return view('admin.activity_logs.index');
+        return Inertia::render('ActivityLogs/Index');
     }
 }

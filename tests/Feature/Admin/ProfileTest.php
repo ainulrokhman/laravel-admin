@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -41,8 +42,11 @@ class ProfileTest extends TestCase
             ->get(route('admin.profile.edit'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('admin.profile.edit');
-        $response->assertViewHas('user');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Profile/Edit')
+            ->has('user')
+            ->where('user.id', $user->id)
+        );
     }
 
     /**

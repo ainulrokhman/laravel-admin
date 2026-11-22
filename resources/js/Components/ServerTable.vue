@@ -32,6 +32,12 @@ const props = defineProps({
         type: [Number, String],
         default: 0,
     },
+    // Initial ordering as { index, dir }; defaults to the first orderable
+    // column ascending, like the DataTables default.
+    defaultOrder: {
+        type: Object,
+        default: null,
+    },
 });
 
 const lengthOptions = [10, 25, 50, 100];
@@ -44,8 +50,9 @@ const perPage = ref(props.pageLength);
 const loading = ref(false);
 
 const firstOrderable = props.columns.findIndex((column) => column.orderable !== false);
-const sortKey = ref(firstOrderable >= 0 ? props.columns[firstOrderable].key : null);
-const sortDir = ref('asc');
+const initialOrderIndex = props.defaultOrder ? props.defaultOrder.index : firstOrderable;
+const sortKey = ref(initialOrderIndex >= 0 ? props.columns[initialOrderIndex].key : null);
+const sortDir = ref(props.defaultOrder ? props.defaultOrder.dir : 'asc');
 
 let drawCounter = 0;
 let searchTimer = null;
