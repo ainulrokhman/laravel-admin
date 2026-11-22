@@ -1,22 +1,27 @@
-# Laravel 12 Admin Panel (RBAC & Yajra DataTables)
+# Laravel 12 Admin Panel (RBAC & Yajra DataTables) — SPA Edition
 
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-round&logo=laravel)](https://laravel.com)
 [![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-777BB4?style=flat-round&logo=php)](https://php.net)
+[![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-round&logo=vuedotjs)](https://vuejs.org)
+[![Inertia](https://img.shields.io/badge/Inertia-3.x-9553E9?style=flat-round)](https://inertiajs.com)
 [![AdminLTE](https://img.shields.io/badge/AdminLTE-4.0.0-blue?style=flat-round)](https://adminlte.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-round)](https://opensource.org/licenses/MIT)
 
 A professional, feature-rich admin template and starter kit built on **Laravel 12**, styled with **AdminLTE 4 (Bootstrap 5)**, featuring full Role-Based Access Control (RBAC) via **Spatie Laravel Permission**, and server-side paginated tables via **Yajra DataTables**.
 
+> **This branch (`spa`) is the single-page application edition**: the interface is built with **Inertia.js + Vue 3** on top of the same Laravel backend — no jQuery, no full page reloads. The classic server-rendered Blade edition lives on the `master` branch. Both editions share the same controllers, models, permissions, and database structure; they differ in the presentation layer only.
+
 ---
 
 ## 🚀 Key Features
 
-*   **Modern Admin Interface**: Beautiful layout built using **AdminLTE 4** with a fully responsive sidebar, header, dark/light theme options, and custom modern typography.
+*   **Modern Admin Interface**: Beautiful layout built using **stock AdminLTE 4** (no custom CSS) with a fully responsive sidebar, header, and dark/light theme toggle.
+*   **SPA Experience**: Pages are Vue 3 components served through **Inertia.js** — navigation happens without full page reloads while authentication stays on Laravel's standard session guard.
 *   **Robust RBAC System**: Full role and permission management using **Spatie Laravel Permission**.
-*   **High Performance Data Handling**: Server-side pagination, search, and filtering via **Yajra DataTables** loaded asynchronously using AJAX.
+*   **High Performance Data Handling**: Server-side pagination, search, and sorting via **Yajra DataTables** endpoints, rendered by a built-in Vue table component speaking the standard DataTables JSON protocol.
 *   **Secure Authentication**: Streamlined user login and logout flows out-of-the-box.
 *   **User Profile & Avatar Settings**: Independent profile management page allowing users to update their personal details, upload a profile picture, and change passwords securely.
-*   **Audit Activity Logging**: Comprehensive activity tracking utilizing **Spatie Laravel Activitylog** to monitor all creations, edits, and deletions of key models, complete with detailed side-by-side modal comparisons of changed properties.
+*   **Audit Activity Logging**: Comprehensive activity tracking utilizing **Spatie Laravel Activitylog** to monitor all creations, edits, and deletions of key models, complete with a detail modal comparing old and new values and highlighting the changed rows.
 *   **Developer Friendly Scripting**: Custom automated project installation commands and concurrency-enabled multi-service local development runner.
 *   **Clean & Secure Codebase**: Strict security checks preventing self-deletion of logged-in accounts, safeguarding seed accounts, and validating all requests.
 
@@ -25,9 +30,9 @@ A professional, feature-rich admin template and starter kit built on **Laravel 1
 ## 🛠️ Tech Stack
 
 *   **Backend**: Laravel 12 (PHP 8.2+)
-*   **Frontend**: Blade + Bootstrap 5 + Bootstrap Icons + AdminLTE 4
-*   **JS Libraries**: jQuery 3.7+, Datatables.net BS5
-*   **Asset Bundler**: Vite
+*   **Frontend**: Vue 3 + Inertia.js 3 + Bootstrap 5 + Bootstrap Icons + AdminLTE 4 (stock styling, no custom CSS, no jQuery)
+*   **Asset Bundler**: Vite (with `@vitejs/plugin-vue`)
+*   **SPA Bridge Package**: `inertiajs/inertia-laravel`
 *   **RBAC Package**: `spatie/laravel-permission`
 *   **DataTables Package**: `yajra/laravel-datatables-oracle`
 *   **Activity Logging Package**: `spatie/laravel-activitylog`
@@ -53,6 +58,7 @@ Follow these steps to set up the project locally:
 ```bash
 git clone https://github.com/ainulrokhman/laravel-admin.git
 cd laravel-admin
+git checkout spa
 ```
 
 ### 2. Fast-Track Installation (Recommended)
@@ -142,17 +148,22 @@ To maintain code security, authorization uniformity, and project style consisten
     ```php
     Route::resource('users', UserController::class)->middleware('permission:user-list');
     ```
-*   **Blade templates**: Hide unauthorized actions and navigation links inside checks:
-    ```html
-    @can('user-create')
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Add User</a>
-    @endcan
+*   **Vue components**: The current user's permissions are shared with every page through Inertia props (`auth.permissions`). Hide unauthorized actions and navigation links with the `can()` helper:
+    ```vue
+    <Link v-if="can('user-create')" href="/admin/users/create" class="btn btn-primary">Add User</Link>
     ```
 
 ### 3. Server-Side DataTables Implementation
-All main data lists should load dynamically and asynchronously using Ajax Yajra DataTables:
-*   Declare empty HTML tables with specific element IDs.
-*   In the controller, detect AJAX requests (`$request->ajax()`), load relationships eagerly to prevent N+1 queries, construct DataTables using `datatables()->of($query)`, declare dynamic action columns, and return the response.
+All main data lists load dynamically and asynchronously from Yajra DataTables endpoints:
+*   In the controller, load relationships eagerly to prevent N+1 queries, construct DataTables using `datatables()->of($query)`, and return **structured row data** (plain values plus an `actions` payload with URLs and disabled reasons) — never pre-rendered HTML columns. The Vue `ServerTable` component renders the cells.
+*   **Inertia visits are also AJAX requests.** The DataTables branch must exclude them, otherwise SPA navigation to a list page receives table JSON instead of the page:
+    ```php
+    if ($request->ajax() && ! $request->header('X-Inertia')) {
+        // return the DataTables JSON response
+    }
+
+    return Inertia::render('Users/Index');
+    ```
 
 ### 4. Security Rules
 *   **Self-Deletion Safeguard**: Users must not be allowed to delete their own accounts:
