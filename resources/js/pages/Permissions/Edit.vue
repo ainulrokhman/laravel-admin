@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 
 // Edit permission page, ported from the former admin/permissions/edit Blade
@@ -17,14 +18,14 @@ const form = useForm({
 });
 
 function submit() {
-    form.put(`/admin/permissions/${props.permission.id}`);
+    form.put(route('admin.permissions.update', props.permission.id));
 }
 </script>
 
 <template>
     <Head title="Edit Permission" />
 
-    <AdminLayout :title="`Edit Permission: ${props.permission.name}`" :breadcrumb="[{ label: 'Permissions', href: '/admin/permissions' }, { label: 'Edit' }]">
+    <AdminLayout :title="`Edit Permission: ${props.permission.name}`" :breadcrumb="[{ label: 'Permissions', href: route('admin.permissions.index') }, { label: 'Edit' }]">
         <div class="row">
             <div class="col-12 col-md-8 col-lg-6 mx-auto">
                 <div class="card border-0 shadow-sm mb-4">
@@ -51,7 +52,7 @@ function submit() {
                             </div>
 
                             <div class="d-flex align-items-center justify-content-end gap-3">
-                                <Link href="/admin/permissions" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                                <Link :href="route('admin.permissions.index')" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
                                     Cancel
                                 </Link>
                                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" :disabled="form.processing">

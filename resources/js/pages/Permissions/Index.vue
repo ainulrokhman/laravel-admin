@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
@@ -29,7 +30,7 @@ const createForm = useForm({
 });
 
 function submitCreate() {
-    createForm.post('/admin/permissions', {
+    createForm.post(route('admin.permissions.store'), {
         preserveScroll: true,
         onSuccess: () => {
             createForm.reset();
@@ -75,7 +76,7 @@ function deletePermission(row) {
                     <div class="card-body px-4 pb-4">
                         <FlashAlerts />
 
-                        <ServerTable url="/admin/permissions" :columns="columns" :search="searchTerm" :refresh-key="tableRefreshKey">
+                        <ServerTable :url="route('admin.permissions.index')" :columns="columns" :search="searchTerm" :refresh-key="tableRefreshKey">
                             <template #cell-permission_name="{ row }">
                                 <div class="d-flex align-items-center">
                                     <div class="bg-info bg-opacity-10 text-info rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">

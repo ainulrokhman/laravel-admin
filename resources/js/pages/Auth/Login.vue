@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ThemeToggle from '../../Components/ThemeToggle.vue';
 
 // Login page, ported from the former auth/login Blade view: same AdminLTE
@@ -21,7 +22,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post('/login');
+    form.post(route('login'));
 }
 
 function quickLogin(account) {
@@ -47,7 +48,7 @@ onUnmounted(() => {
 
     <div class="login-box">
         <div class="login-logo mb-4">
-            <a href="/" class="text-decoration-none d-flex align-items-center justify-content-center">
+            <a :href="route('home')" class="text-decoration-none d-flex align-items-center justify-content-center">
                 <i class="bi bi-cpu-fill text-primary me-2 fs-2"></i>
                 <span class="fw-bold text-body">Laravel</span> <span class="text-primary ms-1 fw-semibold">Admin</span>
             </a>

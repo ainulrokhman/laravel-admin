@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
@@ -74,7 +75,7 @@ function deleteUser(row) {
                         </a>
                     </form>
 
-                    <Link v-if="can('user-create')" href="/admin/users/create" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
+                    <Link v-if="can('user-create')" :href="route('admin.users.create')" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
                         <i class="bi bi-person-plus fs-5"></i> Add User
                     </Link>
                 </div>
@@ -84,7 +85,7 @@ function deleteUser(row) {
                 <!-- Alert banners -->
                 <FlashAlerts />
 
-                <ServerTable url="/admin/users" :columns="columns" :search="searchTerm">
+                <ServerTable :url="route('admin.users.index')" :columns="columns" :search="searchTerm">
                     <template #cell-user_details="{ row }">
                         <div class="d-flex align-items-center">
                             <div :class="`bg-${row.user_details.color} text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm`" style="width: 44px; height: 44px; font-size: 0.95rem;">

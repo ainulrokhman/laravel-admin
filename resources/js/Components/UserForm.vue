@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 // Shared create/edit user form, ported from the former admin/users Blade
 // views (which differed only in labels, password requiredness, and the
@@ -188,7 +189,7 @@ function roleDescription(roleName) {
 
         <!-- Form Actions -->
         <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-            <Link href="/admin/users" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+            <Link :href="route('admin.users.index')" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
                 Cancel
             </Link>
             <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" :disabled="form.processing">

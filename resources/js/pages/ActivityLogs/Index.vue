@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { Modal } from 'bootstrap';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import ServerTable from '../../Components/ServerTable.vue';
@@ -91,7 +92,7 @@ const changeRows = computed(() => {
             </div>
 
             <div class="card-body px-4 pb-4">
-                <ServerTable url="/admin/activity-logs" :columns="columns" :search="searchTerm" :default-order="{ index: 0, dir: 'desc' }">
+                <ServerTable :url="route('admin.activity-logs.index')" :columns="columns" :search="searchTerm" :default-order="{ index: 0, dir: 'desc' }">
                     <template #cell-id="{ value }">
                         {{ value }}
                     </template>

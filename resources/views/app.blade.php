@@ -7,6 +7,9 @@
 
     <title inertia>{{ config('app.name', 'Laravel Admin') }} | Laravel AdminLTE 4</title>
 
+    <!-- Ziggy: named routes for the Vue route() helper -->
+    @routes
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/inertia.js'])
     @inertiaHead

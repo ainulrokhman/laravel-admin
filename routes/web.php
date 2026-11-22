@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 // Welcome Page
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

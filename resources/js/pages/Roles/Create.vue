@@ -1,5 +1,6 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import RoleForm from '../../Components/RoleForm.vue';
 
@@ -17,14 +18,14 @@ const form = useForm({
 });
 
 function submit() {
-    form.post('/admin/roles');
+    form.post(route('admin.roles.store'));
 }
 </script>
 
 <template>
     <Head title="Create Role" />
 
-    <AdminLayout title="Create New Role" :breadcrumb="[{ label: 'Roles', href: '/admin/roles' }, { label: 'Create' }]">
+    <AdminLayout title="Create New Role" :breadcrumb="[{ label: 'Roles', href: route('admin.roles.index') }, { label: 'Create' }]">
         <div class="row">
             <div class="col-12 col-xl-10 mx-auto">
                 <RoleForm

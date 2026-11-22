@@ -1,5 +1,6 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import UserForm from '../../Components/UserForm.vue';
@@ -38,14 +39,14 @@ const form = useForm({
 });
 
 function submit() {
-    form.put(`/admin/users/${props.user.id}`);
+    form.put(route('admin.users.update', props.user.id));
 }
 </script>
 
 <template>
     <Head title="Edit User" />
 
-    <AdminLayout :title="`Edit User: ${props.user.name}`" :breadcrumb="[{ label: 'Users', href: '/admin/users' }, { label: 'Edit' }]">
+    <AdminLayout :title="`Edit User: ${props.user.name}`" :breadcrumb="[{ label: 'Users', href: route('admin.users.index') }, { label: 'Edit' }]">
         <div class="row">
             <div class="col-12 col-xl-8 mx-auto">
                 <FlashAlerts />

@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
+import { ZiggyVue } from 'ziggy-js';
 // Bootstrap's own JS powers the dropdowns in the AdminLTE markup. AdminLTE's
 // jQuery plugins are intentionally not loaded: sidebar treeview, sidebar
 // toggle and tables are driven by Vue state instead.
@@ -22,6 +23,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(ZiggyVue)
             .mount(el);
     },
     progress: {

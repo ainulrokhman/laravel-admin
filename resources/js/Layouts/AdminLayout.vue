@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ThemeToggle from '../Components/ThemeToggle.vue';
 
 // AdminLTE 4 shell as a Vue layout. Same markup and classes as the former
@@ -27,10 +28,13 @@ const can = (name) => permissions.value.includes(name);
 const canAny = (names) => names.some((name) => can(name));
 
 const path = computed(() => page.url.split('?')[0]);
-const isActive = (prefix) => path.value === prefix || path.value.startsWith(`${prefix}/`);
-const dashboardActive = computed(() => path.value === '/admin');
-const aksesActive = computed(() => isActive('/admin/users') || isActive('/admin/roles') || isActive('/admin/permissions'));
-const sistemActive = computed(() => isActive('/admin/activity-logs'));
+const dashboardActive = computed(() => route().current('admin.dashboard'));
+const usersActive = computed(() => route().current('admin.users.*'));
+const rolesActive = computed(() => route().current('admin.roles.*'));
+const permissionsActive = computed(() => route().current('admin.permissions.*'));
+const logsActive = computed(() => route().current('admin.activity-logs.*'));
+const aksesActive = computed(() => usersActive.value || rolesActive.value || permissionsActive.value);
+const sistemActive = computed(() => logsActive.value);
 
 // A group starts open when the current page lives inside it, and re-syncs on
 // every Inertia visit, mirroring the server-rendered menu-open behavior.
@@ -85,7 +89,7 @@ onUnmounted(() => {
                         </a>
                     </li>
                     <li class="nav-item d-none d-md-inline-block">
-                        <Link href="/admin" class="nav-link fs-6 fw-medium">Home</Link>
+                        <Link :href="route('admin.dashboard')" class="nav-link fs-6 fw-medium">Home</Link>
                     </li>
                 </ul>
 
@@ -143,15 +147,15 @@ onUnmounted(() => {
                             <!-- Menu Body -->
                             <li class="user-body p-3">
                                 <div class="d-flex flex-column gap-2 text-center">
-                                    <Link href="/admin/profile" class="btn btn-outline-primary btn-sm w-100">
+                                    <Link :href="route('admin.profile.edit')" class="btn btn-outline-primary btn-sm w-100">
                                         <i class="bi bi-person-gear me-1"></i> My Profile
                                     </Link>
                                     <div class="row g-2">
                                         <div class="col-6">
-                                            <Link href="/admin" class="btn btn-light btn-sm w-100 border">Home</Link>
+                                            <Link :href="route('admin.dashboard')" class="btn btn-light btn-sm w-100 border">Home</Link>
                                         </div>
                                         <div class="col-6">
-                                            <Link href="/logout" class="btn btn-danger btn-sm w-100">Logout</Link>
+                                            <Link :href="route('logout')" class="btn btn-danger btn-sm w-100">Logout</Link>
                                         </div>
                                     </div>
                                 </div>
@@ -166,7 +170,7 @@ onUnmounted(() => {
         <aside class="app-sidebar bg-body-secondary shadow border-end">
             <!-- Sidebar Brand -->
             <div class="sidebar-brand d-flex align-items-center px-4 py-3 justify-content-between border-bottom">
-                <Link href="/admin" class="brand-link text-decoration-none d-flex align-items-center">
+                <Link :href="route('admin.dashboard')" class="brand-link text-decoration-none d-flex align-items-center">
                     <i class="bi bi-cpu-fill fs-4 me-2"></i>
                     <span class="brand-text fw-bold">Laravel Admin</span>
                 </Link>
@@ -178,7 +182,7 @@ onUnmounted(() => {
                     <ul class="nav sidebar-menu flex-column" role="menu">
                         <!-- Menu utama -->
                         <li v-if="can('view-dashboard')" class="nav-item">
-                            <Link href="/admin" class="nav-link" :class="dashboardActive ? 'active bg-primary text-white' : 'text-body'">
+                            <Link :href="route('admin.dashboard')" class="nav-link" :class="dashboardActive ? 'active bg-primary text-white' : 'text-body'">
                                 <i class="nav-icon bi bi-speedometer2 me-2"></i>
                                 <p>Dashboard</p>
                             </Link>
@@ -192,19 +196,19 @@ onUnmounted(() => {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li v-if="can('user-list')" class="nav-item">
-                                    <Link href="/admin/users" class="nav-link" :class="isActive('/admin/users') ? 'active bg-primary text-white' : 'text-body'">
+                                    <Link :href="route('admin.users.index')" class="nav-link" :class="usersActive ? 'active bg-primary text-white' : 'text-body'">
                                         <i class="nav-icon bi bi-people me-2"></i>
                                         <p>Users</p>
                                     </Link>
                                 </li>
                                 <li v-if="can('role-list')" class="nav-item">
-                                    <Link href="/admin/roles" class="nav-link" :class="isActive('/admin/roles') ? 'active bg-primary text-white' : 'text-body'">
+                                    <Link :href="route('admin.roles.index')" class="nav-link" :class="rolesActive ? 'active bg-primary text-white' : 'text-body'">
                                         <i class="nav-icon bi bi-shield-lock me-2"></i>
                                         <p>Roles</p>
                                     </Link>
                                 </li>
                                 <li v-if="can('permission-list')" class="nav-item">
-                                    <Link href="/admin/permissions" class="nav-link" :class="isActive('/admin/permissions') ? 'active bg-primary text-white' : 'text-body'">
+                                    <Link :href="route('admin.permissions.index')" class="nav-link" :class="permissionsActive ? 'active bg-primary text-white' : 'text-body'">
                                         <i class="nav-icon bi bi-key me-2"></i>
                                         <p>Permissions</p>
                                     </Link>
@@ -220,7 +224,7 @@ onUnmounted(() => {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li v-if="can('activity-log-list')" class="nav-item">
-                                    <Link href="/admin/activity-logs" class="nav-link" :class="isActive('/admin/activity-logs') ? 'active bg-primary text-white' : 'text-body'">
+                                    <Link :href="route('admin.activity-logs.index')" class="nav-link" :class="logsActive ? 'active bg-primary text-white' : 'text-body'">
                                         <i class="nav-icon bi bi-journal-text me-2"></i>
                                         <p>Activity Logs</p>
                                     </Link>
@@ -250,7 +254,7 @@ onUnmounted(() => {
                         <div class="col-sm-6">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb float-sm-end mb-0">
-                                    <li class="breadcrumb-item"><Link href="/admin" class="text-decoration-none">Home</Link></li>
+                                    <li class="breadcrumb-item"><Link :href="route('admin.dashboard')" class="text-decoration-none">Home</Link></li>
                                     <template v-for="(item, index) in props.breadcrumb" :key="index">
                                         <li v-if="item.href && index < props.breadcrumb.length - 1" class="breadcrumb-item">
                                             <Link :href="item.href" class="text-decoration-none">{{ item.label }}</Link>
@@ -278,7 +282,7 @@ onUnmounted(() => {
                 <div class="float-end d-none d-sm-inline">
                     AdminLTE v4
                 </div>
-                <strong>Copyright &copy; 2026 <Link href="/admin" class="text-decoration-none">Laravel Admin</Link>.</strong> All rights reserved.
+                <strong>Copyright &copy; 2026 <Link :href="route('admin.dashboard')" class="text-decoration-none">Laravel Admin</Link>.</strong> All rights reserved.
             </div>
         </footer>
     </div>

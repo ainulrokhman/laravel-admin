@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 
@@ -55,7 +56,7 @@ function onAvatarChange(event) {
 }
 
 function submit() {
-    form.put('/admin/profile', {
+    form.put(route('admin.profile.update'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset('password', 'password_confirmation');
@@ -186,7 +187,7 @@ function submit() {
 
                             <!-- Form Actions -->
                             <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-                                <Link href="/admin" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+                                <Link :href="route('admin.dashboard')" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
                                     Cancel
                                 </Link>
                                 <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" :disabled="form.processing">

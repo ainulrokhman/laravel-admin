@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 // Shared create/edit role form, ported from the former admin/roles Blade
 // views. Permissions are grouped into category cards with a switch that
@@ -147,7 +148,7 @@ function permissionLabel(name) {
 
         <!-- Form Actions -->
         <div class="d-flex align-items-center justify-content-end gap-3 mb-5">
-            <Link href="/admin/roles" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
+            <Link :href="route('admin.roles.index')" class="btn btn-light border py-2 px-4 fw-medium" style="border-radius: 8px;">
                 Cancel
             </Link>
             <button type="submit" class="btn btn-primary py-2 px-4 fw-medium" style="border-radius: 8px;" :disabled="form.processing">

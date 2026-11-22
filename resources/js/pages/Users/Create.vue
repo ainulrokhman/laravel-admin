@@ -1,5 +1,6 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import UserForm from '../../Components/UserForm.vue';
 
@@ -25,14 +26,14 @@ const form = useForm({
 });
 
 function submit() {
-    form.post('/admin/users');
+    form.post(route('admin.users.store'));
 }
 </script>
 
 <template>
     <Head title="Add User" />
 
-    <AdminLayout title="Add New User" :breadcrumb="[{ label: 'Users', href: '/admin/users' }, { label: 'Create' }]">
+    <AdminLayout title="Add New User" :breadcrumb="[{ label: 'Users', href: route('admin.users.index') }, { label: 'Create' }]">
         <div class="row">
             <div class="col-12 col-xl-8 mx-auto">
                 <UserForm

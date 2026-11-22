@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../Layouts/AdminLayout.vue';
 
 // Overview dashboard, ported from the former admin/dashboard Blade view.
@@ -41,7 +42,7 @@ const initialsOf = (name) =>
                         <div>
                             <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Total Users</span>
                             <h3 class="mb-0 fw-bold text-body">{{ props.usersCount }}</h3>
-                            <Link v-if="can('user-list')" href="/admin/users" class="text-primary small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
+                            <Link v-if="can('user-list')" :href="route('admin.users.index')" class="text-primary small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
                                 Manage Users <i class="bi bi-arrow-right-short ms-1"></i>
                             </Link>
                             <small v-else class="text-muted">Registered accounts</small>
@@ -61,7 +62,7 @@ const initialsOf = (name) =>
                         <div>
                             <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Total Roles</span>
                             <h3 class="mb-0 fw-bold text-body">{{ props.rolesCount }}</h3>
-                            <Link v-if="can('role-list')" href="/admin/roles" class="text-success small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
+                            <Link v-if="can('role-list')" :href="route('admin.roles.index')" class="text-success small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
                                 Manage Roles <i class="bi bi-arrow-right-short ms-1"></i>
                             </Link>
                             <small v-else class="text-muted">Security levels</small>
@@ -81,7 +82,7 @@ const initialsOf = (name) =>
                         <div>
                             <span class="text-muted text-uppercase fs-7 fw-bold d-block mb-1">Permissions</span>
                             <h3 class="mb-0 fw-bold text-body">{{ props.permissionsCount }}</h3>
-                            <Link v-if="can('permission-list')" href="/admin/permissions" class="text-warning small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
+                            <Link v-if="can('permission-list')" :href="route('admin.permissions.index')" class="text-warning small text-decoration-none fw-medium d-inline-flex align-items-center mt-2">
                                 Configure <i class="bi bi-arrow-right-short ms-1"></i>
                             </Link>
                             <small v-else class="text-muted">System actions</small>
@@ -206,7 +207,7 @@ const initialsOf = (name) =>
                             </div>
                         </div>
                         <div v-if="can('user-list')" class="text-center mt-4">
-                            <Link href="/admin/users" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium" style="border-radius: 8px;">
+                            <Link :href="route('admin.users.index')" class="btn btn-sm btn-outline-primary w-100 py-2 fw-medium" style="border-radius: 8px;">
                                 View All Users
                             </Link>
                         </div>

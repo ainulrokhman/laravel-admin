@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 import FlashAlerts from '../../Components/FlashAlerts.vue';
 import ServerTable from '../../Components/ServerTable.vue';
@@ -56,7 +57,7 @@ function deleteRole(row) {
                         </a>
                     </form>
 
-                    <Link v-if="can('role-create')" href="/admin/roles/create" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
+                    <Link v-if="can('role-create')" :href="route('admin.roles.create')" class="btn btn-primary d-inline-flex align-items-center gap-2 py-2 px-3 fw-medium" style="border-radius: 8px;">
                         <i class="bi bi-shield-plus fs-5"></i> Create New Role
                     </Link>
                 </div>
@@ -66,7 +67,7 @@ function deleteRole(row) {
                 <!-- Alert banners -->
                 <FlashAlerts />
 
-                <ServerTable url="/admin/roles" :columns="columns" :search="searchTerm">
+                <ServerTable :url="route('admin.roles.index')" :columns="columns" :search="searchTerm">
                     <template #cell-role_name="{ row }">
                         <div class="d-flex align-items-center">
                             <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
