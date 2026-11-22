@@ -19,81 +19,76 @@ class PermissionDataTable
     /**
      * Build the DataTable response.
      *
+     * Same Yajra protocol as before, but the added columns carry structured
+     * data instead of pre-rendered HTML so the Vue table renders the cells.
+     *
      * @return JsonResponse
      */
     public function make()
     {
         $permissions = Permission::select(['id', 'name', 'guard_name'])->with('roles');
+        $currentUser = auth()->user();
 
         return DataTables::of($permissions)
             ->addColumn('permission_name', $this->permissionNameColumn())
             ->addColumn('roles_using_this', $this->rolesUsingThisColumn())
-            ->addColumn('actions', $this->actionsColumn())
-            ->rawColumns(['permission_name', 'roles_using_this', 'actions'])
+            ->addColumn('actions', $this->actionsColumn($currentUser))
             ->make(true);
     }
 
     /**
-     * Build the `permission_name` column renderer.
+     * Build the `permission_name` column data: name plus guard.
      */
     private function permissionNameColumn(): \Closure
     {
         return function ($permission) {
-            return '<div class="d-flex align-items-center">
-                    <div class="bg-info bg-opacity-10 text-info rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="bi bi-key fs-5"></i>
-                    </div>
-                    <div>
-                        <span class="fw-bold text-body d-block">'.e($permission->name).'</span>
-                        <span class="text-muted small">Guard: '.e($permission->guard_name).'</span>
-                    </div>
-                </div>';
+            return [
+                'name' => $permission->name,
+                'guard_name' => $permission->guard_name,
+            ];
         };
     }
 
     /**
-     * Build the `roles_using_this` column renderer.
+     * Build the `roles_using_this` column data: names of the roles that
+     * hold this permission.
      */
     private function rolesUsingThisColumn(): \Closure
     {
         return function ($permission) {
-            $html = '<div class="d-flex flex-wrap gap-1" style="max-width: 250px;">';
-            foreach ($permission->roles as $role) {
-                $html .= '<span class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-xs">'.e($role->name).'</span>';
-            }
-            if ($permission->roles->isEmpty()) {
-                $html .= '<span class="text-muted small italic">Not assigned</span>';
-            }
-            $html .= '</div>';
-
-            return $html;
+            return $permission->roles->map(fn ($role) => $role->name)->values()->all();
         };
     }
 
     /**
-     * Build the `actions` column renderer.
+     * Build the `actions` column data.
+     *
+     * Mirrors the old server-rendered buttons: core system permissions are
+     * flagged as protected and expose no actions; custom permissions expose
+     * edit/delete URLs according to the current user's permissions.
      */
-    private function actionsColumn(): \Closure
+    private function actionsColumn(?\App\Models\User $currentUser): \Closure
     {
-        return function ($permission) {
-            $isProtected = $this->permissionService->isPermissionProtected($permission);
-            $html = '<div class="d-flex justify-content-end gap-2">';
-            if ($isProtected) {
-                $html .= '<span class="badge bg-light text-secondary border d-flex align-items-center py-2 px-3 rounded-2 text-xs"><i class="bi bi-lock-fill text-warning me-1"></i> Core</span>';
-            } else {
-                if (auth()->user()->can('permission-edit')) {
-                    $html .= '<a href="'.route('admin.permissions.edit', $permission->id).'" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Edit Permission"><i class="bi bi-pencil-square text-primary"></i></a>';
-                }
-                if (auth()->user()->can('permission-delete')) {
-                    $html .= '<form action="'.route('admin.permissions.destroy', $permission->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to delete this permission? This action will remove it from all assigned roles.\')">';
-                    $html .= csrf_field().method_field('DELETE');
-                    $html .= '<button type="submit" class="btn btn-sm btn-light border py-1.5 px-2.5 rounded-2" title="Delete Permission"><i class="bi bi-trash text-danger"></i></button>';
-                    $html .= '</form>';
-                }
-            }
-            $html .= '</div>';
+        return function ($permission) use ($currentUser) {
+            $actions = [
+                'protected' => $this->permissionService->isPermissionProtected($permission),
+                'edit_url' => null,
+                'delete_url' => null,
+            ];
 
-            return $html;
+            if ($actions['protected']) {
+                return $actions;
+            }
+
+            if ($currentUser?->can('permission-edit')) {
+                $actions['edit_url'] = route('admin.permissions.edit', $permission->id);
+            }
+
+            if ($currentUser?->can('permission-delete')) {
+                $actions['delete_url'] = route('admin.permissions.destroy', $permission->id);
+            }
+
+            return $actions;
         };
     }
 }

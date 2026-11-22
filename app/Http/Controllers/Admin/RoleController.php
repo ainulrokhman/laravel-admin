@@ -13,6 +13,8 @@ use App\Http\Requests\Role\UpdateRoleRequest;
 use App\DataTables\RoleDataTable;
 use App\Support\SystemAccess;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RoleController extends Controller
 {
@@ -39,21 +41,35 @@ class RoleController extends Controller
             return $roleDataTable->make();
         }
 
-        $roles = collect();
-        return view('admin.roles.index', compact('roles'));
+        return Inertia::render('Roles/Index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         Gate::authorize('role-create');
 
-        $permissions = Permission::all();
-        $groupedPermissions = $this->roleService->groupPermissions($permissions);
+        return Inertia::render('Roles/Create', [
+            'groupedPermissions' => $this->serializeGroupedPermissions(),
+        ]);
+    }
 
-        return view('admin.roles.create', compact('groupedPermissions'));
+    /**
+     * Group all permissions by category, shaped for the Vue role form:
+     * category name mapped to a list of id/name pairs.
+     */
+    private function serializeGroupedPermissions(): array
+    {
+        $grouped = $this->roleService->groupPermissions(Permission::all());
+
+        return collect($grouped)
+            ->map(fn ($permissions) => collect($permissions)
+                ->map(fn (Permission $permission) => ['id' => $permission->id, 'name' => $permission->name])
+                ->values()
+                ->all())
+            ->all();
     }
 
     /**
@@ -82,11 +98,13 @@ class RoleController extends Controller
                 ->with('error', 'The SuperAdmin role permissions are locked and cannot be modified.');
         }
 
-        $permissions = Permission::all();
-        $rolePermissions = $role->permissions->pluck('id')->toArray();
-        $groupedPermissions = $this->roleService->groupPermissions($permissions);
-
-        return view('admin.roles.edit', compact('role', 'groupedPermissions', 'rolePermissions'));
+        return Inertia::render('Roles/Edit', [
+            'role' => $role->only(['id', 'name']),
+            'groupedPermissions' => $this->serializeGroupedPermissions(),
+            'rolePermissions' => $role->permissions->pluck('id')->toArray(),
+            // Built-in Admin/User roles keep their name to avoid breakage.
+            'nameLocked' => in_array($role->name, [SystemAccess::ADMIN_ROLE, SystemAccess::USER_ROLE], true),
+        ]);
     }
 
     /**

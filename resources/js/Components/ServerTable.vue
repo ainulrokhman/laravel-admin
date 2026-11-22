@@ -11,7 +11,9 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    // [{ key, label, orderable, searchable, align ('end'|'center'), width }]
+    // [{ key, label, name, orderable, searchable, align ('end'|'center'), width }]
+    // `name` is the Yajra column name used for search/order when it differs
+    // from the payload key (defaults to `key`).
     columns: {
         type: Array,
         required: true,
@@ -23,6 +25,12 @@ const props = defineProps({
     pageLength: {
         type: Number,
         default: 10,
+    },
+    // Bump this value to force a reload (e.g. after an inline create form
+    // on the same page added a row).
+    refreshKey: {
+        type: [Number, String],
+        default: 0,
     },
 });
 
@@ -75,7 +83,7 @@ function buildParams() {
 
     props.columns.forEach((column, index) => {
         params[`columns[${index}][data]`] = column.key;
-        params[`columns[${index}][name]`] = column.key;
+        params[`columns[${index}][name]`] = column.name ?? column.key;
         params[`columns[${index}][searchable]`] = column.searchable === false ? 'false' : 'true';
         params[`columns[${index}][orderable]`] = column.orderable === false ? 'false' : 'true';
         params[`columns[${index}][search][value]`] = '';
@@ -146,6 +154,11 @@ watch(perPage, () => {
     page.value = 1;
     load();
 });
+
+watch(
+    () => props.refreshKey,
+    () => load(),
+);
 
 onMounted(load);
 </script>

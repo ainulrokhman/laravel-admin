@@ -11,6 +11,7 @@ use App\Http\Requests\Permission\StorePermissionRequest;
 use App\Http\Requests\Permission\UpdatePermissionRequest;
 use App\DataTables\PermissionDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use Inertia\Inertia;
 
 class PermissionController extends Controller
 {
@@ -37,8 +38,7 @@ class PermissionController extends Controller
             return $permissionDataTable->make();
         }
 
-        $permissions = collect();
-        return view('admin.permissions.index', compact('permissions'));
+        return Inertia::render('Permissions/Index');
     }
 
     /**
@@ -66,7 +66,9 @@ class PermissionController extends Controller
                 ->with('error', 'The core system permission "' . $permission->name . '" is protected and cannot be edited.');
         }
 
-        return view('admin.permissions.edit', compact('permission'));
+        return Inertia::render('Permissions/Edit', [
+            'permission' => $permission->only(['id', 'name']),
+        ]);
     }
 
     /**
