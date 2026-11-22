@@ -12,6 +12,9 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\DataTables\UserDataTable;
 use App\Http\Controllers\Admin\Concerns\HandlesServiceExceptions;
+use App\Support\SystemAccess;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserController extends Controller
 {
@@ -34,26 +37,27 @@ class UserController extends Controller
     {
         Gate::authorize('user-list');
 
-        $search = $request->get('search');
-        
         if ($request->ajax()) {
             return $userDataTable->make();
         }
 
-        $users = collect(); // Initial empty collection for blade compile safety
-
-        return view('admin.users.index', compact('users', 'search'));
+        return Inertia::render('Users/Index', [
+            'search' => $request->get('search'),
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         Gate::authorize('user-create');
 
-        $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        return Inertia::render('Users/Create', [
+            'roles' => Role::all(['id', 'name']),
+            // The plain User role starts ticked, as in the former form.
+            'defaultRole' => SystemAccess::USER_ROLE,
+        ]);
     }
 
     /**
@@ -72,13 +76,18 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(User $user): Response
     {
         Gate::authorize('user-edit');
 
-        $roles = Role::all();
-        $userRoles = $user->roles->pluck('name')->toArray();
-        return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
+        return Inertia::render('Users/Edit', [
+            'user' => $user->only(['id', 'name', 'email']),
+            'roles' => Role::all(['id', 'name']),
+            'userRoles' => $user->roles->pluck('name')->toArray(),
+            // The Super Admin seed account locks its email and its role.
+            'protectedAccount' => $user->email === SystemAccess::SUPER_ADMIN_EMAIL,
+            'protectedRole' => SystemAccess::SUPER_ADMIN_ROLE,
+        ]);
     }
 
     /**

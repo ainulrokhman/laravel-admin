@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Concerns\SeedsDemoUsers;
 use Tests\Feature\Admin\Concerns\TestsResourceAccess;
 use Tests\TestCase;
@@ -27,6 +28,22 @@ class UserManagementTest extends TestCase
     protected function indexViewName(): string
     {
         return 'admin.users.index';
+    }
+
+    /**
+     * The user list is an Inertia page now, so the shared trait assertion is
+     * replaced with the equivalent component assertion.
+     */
+    protected function assertAdminCanViewList(): void
+    {
+        $response = $this->actingAs($this->admin())
+            ->get(route($this->indexRouteName()));
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Users/Index')
+            ->has('search')
+        );
     }
 
     /**
